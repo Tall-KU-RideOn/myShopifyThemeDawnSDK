@@ -10,6 +10,7 @@
 
     async login() {
       this.session = await recharge.auth.loginShopifyAppProxy();
+      console.log(this.session)
     }
 
     async fetchPortalAccess() {
