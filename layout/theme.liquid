@@ -294,9 +294,6 @@
         // retry middleware function if/when Recharge session expires
         loginRetryFn: () => {
           return recharge.auth.loginShopifyAppProxy().then(session => {
-            ...
-            // store recharge session
-            ...
             return session;
           });
         },
