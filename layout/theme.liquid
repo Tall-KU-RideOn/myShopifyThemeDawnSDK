@@ -283,6 +283,25 @@
         document.documentElement.classList.add('shopify-design-mode');
       }
     </script>
+
+    <script src="https://static.rechargecdn.com/assets/storefront/recharge-client-1.18.3.min.js"></script>
+    <script>
+      recharge.init({
+        // optional when in a shopify environment
+        storeIdentifier: '{{shop.permanent_domain}}',
+        // required for API access
+        storefrontAccessToken: 'strfnt_5e89d81c1aa25a0272dd750164994355acfcdc88df2c1597bf2946c33e3c7a66',
+        // retry middleware function if/when Recharge session expires
+        loginRetryFn: () => {
+          return recharge.auth.loginShopifyAppProxy().then(session => {
+            ...
+            // store recharge session
+            ...
+            return session;
+          });
+        },
+      });
+    </script>
   </head>
 
   <body class="gradient{% if settings.animations_hover_elements != 'none' %} animate--hover-{{ settings.animations_hover_elements }}{% endif %}">
