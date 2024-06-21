@@ -2,6 +2,8 @@
 <customer-credit-summary></customer-credit-summary>
 
 <script type="module">
+  import { getCreditSummary } from '@rechargeapps/storefront-client';
+
   class CustomerCreditSummary extends HTMLElement {
     selectors = {
       loader: '.credits-loader',
@@ -15,26 +17,19 @@
 
     async login() {
       this.session = await recharge.auth.loginShopifyAppProxy();
+      return this.session;
     }
 
     async loadCredits() {
       this.setLoading(true);
       try {
         await this.login();
-        const customerId = {{ customer.id | json }};
-        const response = await fetch(`https://api.rechargeapps.com/customers/${customerId}/credit_summary`, {
-          method: 'GET',
-          headers: {
-            'X-Recharge-Access-Token': 'YOUR_RECHARGE_API_KEY',
-            'Content-Type': 'application/json',
-          },
-        });
+        const creditSummary = await getCreditSummary(this.session, { include: ['credit_details'] });
 
-        const data = await response.json();
-        if (data.credits) {
+        if (creditSummary.credits) {
           const tableBody = this.querySelector(`${this.selectors.table} tbody`);
           if (!tableBody) return;
-          data.credits.forEach(credit => {
+          creditSummary.credits.forEach(credit => {
             tableBody.append(this.createRow(credit));
           });
         } else {
@@ -54,6 +49,7 @@
       } else if (value) {
         const loadingEl = document.createElement('div');
         loadingEl.classList.add(this.selectors.loader.split('.')[1]);
+        loadingEl.innerHTML = 'Loading...';
         this.append(loadingEl);
       }
     }
