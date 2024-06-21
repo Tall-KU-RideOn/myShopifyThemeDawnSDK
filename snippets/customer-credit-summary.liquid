@@ -24,7 +24,7 @@
       this.setLoading(true);
       try {
         await this.login();
-        const creditSummary = await getCreditSummary(this.session, { include: ['credit_details'] });
+        const creditSummary = await recharge.customer.getCreditSummary(this.session, { include: ['credit_details'] });
 
         if (creditSummary.credits) {
           const tableBody = this.querySelector(`${this.selectors.table} tbody`);
