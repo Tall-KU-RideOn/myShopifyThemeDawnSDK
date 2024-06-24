@@ -1,0 +1,71 @@
+{% comment %}
+  This is the new page template for displaying all actions that can be performed with a 'customer' using the Recharge API.
+{% endcomment %}
+
+{% layout none %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Actions</title>
+  {{ 'theme.css' | asset_url | stylesheet_tag }}
+  <style>
+    /* Include any additional styles here */
+    .customer-actions {
+      margin: 20px;
+    }
+
+    .customer-actions h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .customer-actions table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .customer-actions th,
+    .customer-actions td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+
+    .customer-actions th {
+      background-color: #f4f4f4;
+      text-align: left;
+    }
+
+    .customer-actions tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .customer-actions tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .loader {
+      text-align: center;
+      padding: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .message {
+      text-align: center;
+      padding: 1rem;
+      font-size: 1.2rem;
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <div class="customer-actions">
+    <h1>Customer Actions</h1>
+    <div id="customer-actions-list"></div>
+  </div>
+
+  {{ 'customer-actions.js' | asset_url | script_tag }}
+</body>
+</html>
