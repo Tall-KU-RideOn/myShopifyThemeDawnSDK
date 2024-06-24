@@ -1,5 +1,3 @@
-import { getCustomer, listCustomers, createCustomer, updateCustomer, deleteCustomer, getCreditSummary } from '@rechargeapps/storefront-client';
-
 document.addEventListener('DOMContentLoaded', async function() {
   const customerActionsList = document.getElementById('customer-actions-list');
 
