@@ -1,0 +1,76 @@
+<!-- page.overview.liquid -->
+
+{% layout 'account' %}
+
+<div class="account-overview">
+  <h1>Your Account Overview</h1>
+
+  <!-- Section: Recent Orders -->
+  <div class="account-section">
+    <h2>Your recent order</h2>
+    <p>We’re working on your order, and we’ll dispatch it as soon as it’s ready</p>
+    <a href="/account/orders">See what’s in your order</a>
+  </div>
+
+  <!-- Section: Next Order -->
+  <div class="account-section">
+    <h2>Your next order</h2>
+    <p>Thu, July 18, 2024</p>
+    <button>Send now</button>
+    <button>Reschedule</button>
+    <button>Skip</button>
+  </div>
+
+  <!-- Section: Delivery Details -->
+  <div class="account-section">
+    <h2>Deliver to</h2>
+    <p>8961 NUEVA ST</p>
+    <div>
+      <p>Short Sleeve T-Shirt</p>
+      <p>Small</p>
+      <p>1 x $9.00 Every month</p>
+      <a href="#">Manage this subscription</a>
+    </div>
+    <button>Edit address</button>
+  </div>
+
+  <!-- Section: Payment and Order Total -->
+  <div class="account-section">
+    <h2>Order total</h2>
+    <p>Shipping: Pending estimation</p>
+    <p>Estimated taxes: $0.84</p>
+    <p>Order total: $9.84</p>
+    <p>Charge to card ending in 4242</p>
+    <button>Edit payment method</button>
+  </div>
+
+  <!-- Section: Credits -->
+  <div class="account-section">
+    <h2>Credits</h2>
+    <p>$0.00</p>
+    <p>Auto-apply to the next order</p>
+  </div>
+</div>
+
+<style>
+.account-overview {
+  padding: 20px;
+}
+
+.account-section {
+  margin-bottom: 20px;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+</style>
