@@ -388,7 +388,8 @@
       "title": "Account",
       "details": "Account details",
       "view_addresses": "View addresses",
-      "return": "Return to Account details"
+      "return": "Return to Account details",
+      "overview": "OverView"
     },
     "account_fallback": "Account",
     "activate_account": {
