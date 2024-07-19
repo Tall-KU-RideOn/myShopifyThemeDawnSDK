@@ -41,7 +41,7 @@
       await this.login();
 
       try {
-        const response = await recharge.order.listOrders(this.session, { limit: 1, sort_by: 'id-asc'});
+        const response = await recharge.order.listOrders(this.session, { limit: 1, sort_by: 'id-asc',});
         console.log('Full Response:', response); // Log the full response
 
         const orders = response['orders'];
