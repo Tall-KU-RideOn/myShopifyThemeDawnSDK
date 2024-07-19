@@ -6,7 +6,13 @@
   <h1>Your Account Overview</h1>
 
   <!-- Section: Recent Orders -->
-  {% render 'next-orders' %}
+  {% layout 'page' %}
+
+<div class="page-width">
+  <h1>{{ page.title }}</h1>
+
+  {% section 'next-orders' %}
+</div>
 
   <!-- Section: Next Order -->
   <div class="account-section">
