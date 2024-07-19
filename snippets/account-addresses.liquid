@@ -1,0 +1,144 @@
+<style>
+  .visually-hidden {
+    border: 0px;
+    clip: rect(0px, 0px, 0px, 0px);
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0px;
+    overflow: hidden;
+    white-space: nowrap;
+    position: absolute;
+  }
+
+  @keyframes spinner {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .addressess-table td.id {
+    vertical-align: middle !important;
+  }
+
+  .addressess-loader {
+    display: flex;
+    justify-content: center;
+    padding-top: 16px;
+  }
+
+  .addressess-loader__spinner {
+    display: inline-block;
+    border-top: 2px solid currentcolor;
+    border-right: 2px solid currentcolor;
+    border-bottom-style: solid;
+    border-left-style: solid;
+    border-radius: 99999px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+    animation: 0.45s linear 0s infinite normal none running spinner;
+    width: var(--spinner-size);
+    height: var(--spinner-size);
+    --spinner-size: 5rem;
+  }
+
+  .addressess {
+    width: 100%;
+  }
+</style>
+
+<section class="addressess">
+  <div>
+    <h2>addressess</h2>
+    <account-addressess>
+      <table class="addressess-table">
+        <thead>
+          <tr>
+            <td>ID</td>
+            <td>Product</td>
+            <td>Quantity</td>
+            <td>Price</td>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="addressess-loader">
+        <div class="addressess-loader__spinner"><span class="visually-hidden">Loading...</span></div>
+      </div>
+    </account-addressess>
+  </div>
+</section>
+
+<script>
+  class AccountAddressess extends HTMLElement {
+    selectors = {
+      loader: '.addressess-loader',
+      table: '.addressess-table',
+    };
+
+    constructor() {
+      super();
+      this.loadaddressess();
+    }
+
+    async login() {
+      this.session = await recharge.auth.loginShopifyAppProxy();
+    }
+
+    async loadaddressess() {
+      this.setLoading(true);
+      await this.login();
+      const { addresses } = await recharge.address.listAddresses(this.session);
+      addresses.forEach(address => {
+        const tableBody = this.querySelector(`${this.selectors.table} tbody`);
+        if (!tableBody) return;
+        tableBody.append(this.createRow(address));
+      });
+      this.setLoading(false);
+    }
+
+    async setLoading(value) {
+      const loader = this.querySelector(this.selectors.loader);
+      if (!value && loader) {
+        loader.remove();
+      } else if (value) {
+        const loadingEl = document.createElement('div');
+        loadingEl.classList.add(this.selectors.loader.split('.')[1]);
+        this.append(loadingEl);
+      }
+    }
+
+    createRow(addresses) {
+      const row = document.createElement('tr');
+
+      const idCol = document.createElement('td');
+      idCol.classList.add('id');
+      idCol.innerHTML = addresses.id;
+      row.append(idCol);
+
+      const productCol = document.createElement('td');
+      productCol.classList.add('product');
+      productCol.innerHTML = addresses.product_title;
+      row.append(productCol);
+
+      const quantityCol = document.createElement('td');
+      quantityCol.classList.add('addresses-quantity');
+      quantityCol.innerHTML = addresses.quantity;
+      row.append(quantityCol);
+
+      const priceCol = document.createElement('td');
+      priceCol.classList.add('price');
+      priceCol.innerHTML = `$${addresses.price}`;
+      row.append(priceCol);
+
+      return row;
+    }
+  }
+
+  customElements.define('account-addressess', AccountAddressess);
+</script>
