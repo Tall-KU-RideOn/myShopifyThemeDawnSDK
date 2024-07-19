@@ -1,0 +1,80 @@
+<section class="next-orders">
+  <div>
+    <h2>Your Next Orders</h2>
+    <account-next-orders>
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <td>ID</td>
+            <td>Product</td>
+            <td>Quantity</td>
+            <td>Price</td>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="orders-loader">
+        <div class="orders-loader__spinner"><span class="visually-hidden">Loading...</span></div>
+      </div>
+    </account-next-orders>
+  </div>
+</section>
+
+<script>
+  class AccountNextOrders extends HTMLElement {
+    selectors = {
+      loader: '.orders-loader',
+      table: '.orders-table',
+    };
+
+    constructor() {
+      super();
+      this.loadNextOrders();
+    }
+
+    async login() {
+      this.session = await recharge.auth.loginShopifyAppProxy();
+    }
+
+    async loadNextOrders() {
+      this.setLoading(true);
+      await this.login();
+      const { subscriptions } = await recharge.subscription.listSubscriptions(this.session);
+      const { orders } = await recharge.orders.listOrders(session, {
+          limit: 1,
+          sort_by: 'id-asc',
+        });
+      orders.forEach(order => {
+        const tableBody = this.querySelector(`${this.selectors.table} tbody`);
+        if (!tableBody) return;
+        tableBody.append(this.createRow(order));
+      });
+      this.setLoading(false);
+    }
+
+    // Add event listener to the 'Send now' button
+    document.getElementById('send-now-button').addEventListener('click', async function() {
+    await recharge.charge.processCharge(session, data.chargeId);
+    alert('Order processed successfully');
+    });
+
+    createRow(order) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${order.id}</td>
+        <td>${order.product}</td>
+        <td>${order.quantity}</td>
+        <td>${order.price}</td>
+      `;
+      return tr;
+    }
+
+    setLoading(isLoading) {
+      const loader = this.querySelector(this.selectors.loader);
+      loader.style.display = isLoading ? 'block' : 'none';
+    }
+  }
+
+  customElements.define('account-next-orders', AccountNextOrders);
+</script>
+
