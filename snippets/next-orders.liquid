@@ -44,7 +44,7 @@
         const response = await recharge.order.listOrders(this.session);
         console.log('Full Response:', response); // Log the full response
 
-        const orders = response.orders;
+        const orders = response['orders'];
         console.log('Next Orders Data:', orders); // Print response to the console
 
         if (orders && orders.length > 0) {
