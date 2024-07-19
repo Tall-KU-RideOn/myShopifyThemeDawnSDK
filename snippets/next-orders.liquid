@@ -43,6 +43,7 @@
           limit: 25,
           sort_by: 'id-asc',
         });
+      console.log('Next Orders Data:', orders); // Print response to the console
       orders.forEach(order => {
         const tableBody = this.querySelector(`${this.selectors.table} tbody`);
         if (!tableBody) return;
