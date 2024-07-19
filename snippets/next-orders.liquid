@@ -39,24 +39,47 @@
     async loadNextOrders() {
       this.setLoading(true);
       await this.login();
-      const { orders } = await recharge.charge.listCharges(this.session);
-      console.log('Next Orders Data:', orders); // Print response to the console
+
+      try {
+        const { orders } = await recharge.charge.listCharges(this.session, {
+          limit: 25,
+          sort_by: 'id-asc',
+        });
+        console.log('Next Orders Data:', orders); // Print response to the console
+
+        if (orders && orders.length > 0) {
+          this.populateOrders(orders);
+        } else {
+          console.log('No orders found');
+        }
+      } catch (error) {
+        console.error('Error fetching next orders:', error);
+      }
+
+      this.setLoading(false);
+    }
+
+    populateOrders(orders) {
+      const tableBody = this.querySelector(`${this.selectors.table} tbody`);
+      if (!tableBody) {
+        console.error('Table body not found');
+        return;
+      }
+
       orders.forEach(order => {
-        const tableBody = this.querySelector(`${this.selectors.table} tbody`);
-        if (!tableBody) return;
         tableBody.append(this.createRow(order));
       });
-      this.setLoading(false);
     }
 
     createRow(order) {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${order.id}</td>
-        <td>${order.product}</td>
-        <td>${order.quantity}</td>
-        <td>${order.price}</td>
+        <td>${order.line_items[0].title}</td>
+        <td>${order.line_items[0].quantity}</td>
+        <td>${order.line_items[0].price}</td>
       `;
+      console.log('Appending row:', tr); // Log the row being appended
       return tr;
     }
 
@@ -66,6 +89,5 @@
     }
   }
 
-  customElements.define('next-orders', AccountNextOrders);
+  customElements.define('account-next-orders', AccountNextOrders);
 </script>
-
