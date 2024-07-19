@@ -39,7 +39,11 @@
     async loadNextOrders() {
       this.setLoading(true);
       await this.login();
-      const { orders } = await fetch('/path-to-your-server-side-endpoint-to-get-next-order-data').then(res => res.json());
+      const { subscriptions } = await recharge.subscription.listSubscriptions(this.session);
+      const { orders } = await recharge.orders.listOrders(session, {
+          limit: 25,
+          sort_by: 'id-asc',
+        });
       orders.forEach(order => {
         const tableBody = this.querySelector(`${this.selectors.table} tbody`);
         if (!tableBody) return;
@@ -65,7 +69,7 @@
     }
   }
 
-  customElements.define('account-next-orders', AccountNextOrders);
+  customElements.define('next-orders', AccountNextOrders);
 </script>
 
 {% schema %}
@@ -74,3 +78,4 @@
   "settings": []
 }
 {% endschema %}
+
