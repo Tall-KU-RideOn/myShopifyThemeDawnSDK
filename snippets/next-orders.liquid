@@ -41,7 +41,7 @@
 
       try {
         const response = await recharge.charge.listCharges(this.session, {
-          limit: 25,
+          limit: 1,
           status: 'queued',
         });
         console.log('Full Response:', response); // Log the full response
