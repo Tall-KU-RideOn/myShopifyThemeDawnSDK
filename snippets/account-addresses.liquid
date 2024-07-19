@@ -20,17 +20,18 @@
     }
   }
 
-  .addressess-table td.id {
+  .addresses-table td.id,
+  .addresses-table td.actions {
     vertical-align: middle !important;
   }
 
-  .addressess-loader {
+  .addresses-loader {
     display: flex;
     justify-content: center;
     padding-top: 16px;
   }
 
-  .addressess-loader__spinner {
+  .addresses-loader__spinner {
     display: inline-block;
     border-top: 2px solid currentcolor;
     border-right: 2px solid currentcolor;
@@ -47,50 +48,90 @@
     --spinner-size: 5rem;
   }
 
-  .addressess {
+  .addresses {
     width: 100%;
+  }
+
+  .addresses-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+
+  .addresses-table th,
+  .addresses-table td {
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    text-align: left;
+  }
+
+  .addresses-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 6px 12px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-right: 10px;
+    font-size: 14px;
+  }
+
+  .btn--secondary {
+    background-color: #6c757d;
+    color: white;
+  }
+
+  .btn--danger {
+    background-color: #dc3545;
+    color: white;
   }
 </style>
 
-<section class="addressess">
+<section class="addresses">
   <div>
-    <h2>addressess</h2>
-    <account-addressess>
-      <table class="addressess-table">
+    <h2>Addresses</h2>
+    <account-addresses>
+      <table class="addresses-table">
         <thead>
           <tr>
-            <td>ID</td>
-            <td>Product</td>
-            <td>Quantity</td>
-            <td>Price</td>
+            <th>Address 1</th>
+            <th>Address 2</th>
+            <th>City</th>
+            <th>State</th>
+            <th>ZIP</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody></tbody>
       </table>
-      <div class="addressess-loader">
-        <div class="addressess-loader__spinner"><span class="visually-hidden">Loading...</span></div>
+      <div class="addresses-loader">
+        <div class="addresses-loader__spinner"><span class="visually-hidden">Loading...</span></div>
       </div>
-    </account-addressess>
+    </account-addresses>
   </div>
 </section>
 
 <script>
-  class AccountAddressess extends HTMLElement {
+  class AccountAddresses extends HTMLElement {
     selectors = {
-      loader: '.addressess-loader',
-      table: '.addressess-table',
+      loader: '.addresses-loader',
+      table: '.addresses-table',
     };
 
     constructor() {
       super();
-      this.loadaddressess();
+      this.loadAddresses();
     }
 
     async login() {
       this.session = await recharge.auth.loginShopifyAppProxy();
     }
 
-    async loadaddressess() {
+    async loadAddresses() {
       this.setLoading(true);
       await this.login();
       const { addresses } = await recharge.address.listAddresses(this.session);
@@ -102,7 +143,7 @@
       this.setLoading(false);
     }
 
-    async setLoading(value) {
+    setLoading(value) {
       const loader = this.querySelector(this.selectors.loader);
       if (!value && loader) {
         loader.remove();
@@ -113,32 +154,50 @@
       }
     }
 
-    createRow(addresses) {
+    createRow(address) {
       const row = document.createElement('tr');
 
-      const idCol = document.createElement('td');
-      idCol.classList.add('id');
-      idCol.innerHTML = addresses.id;
-      row.append(idCol);
+      const address1Col = document.createElement('td');
+      address1Col.innerHTML = address.address1;
+      row.append(address1Col);
 
-      const productCol = document.createElement('td');
-      productCol.classList.add('product');
-      productCol.innerHTML = addresses.product_title;
-      row.append(productCol);
+      const address2Col = document.createElement('td');
+      address2Col.innerHTML = address.address2 || '';
+      row.append(address2Col);
 
-      const quantityCol = document.createElement('td');
-      quantityCol.classList.add('addresses-quantity');
-      quantityCol.innerHTML = addresses.quantity;
-      row.append(quantityCol);
+      const cityCol = document.createElement('td');
+      cityCol.innerHTML = address.city;
+      row.append(cityCol);
 
-      const priceCol = document.createElement('td');
-      priceCol.classList.add('price');
-      priceCol.innerHTML = `$${addresses.price}`;
-      row.append(priceCol);
+      const stateCol = document.createElement('td');
+      stateCol.innerHTML = address.province;
+      row.append(stateCol);
+
+      const zipCol = document.createElement('td');
+      zipCol.innerHTML = address.zip;
+      row.append(zipCol);
+
+      const actionsCol = document.createElement('td');
+      actionsCol.classList.add('actions');
+      actionsCol.innerHTML = `
+        <a href="#" class="btn btn--secondary" data-id="${address.id}" onclick="editAddress(${address.id})">Edit</a>
+        <a href="#" class="btn btn--danger" data-id="${address.id}" onclick="removeAddress(${address.id})">Remove</a>
+      `;
+      row.append(actionsCol);
 
       return row;
     }
   }
 
-  customElements.define('account-addressess', AccountAddressess);
+  customElements.define('account-addresses', AccountAddresses);
+
+  function editAddress(id) {
+    // Implement your edit functionality here
+    console.log('Edit address with ID:', id);
+  }
+
+  function removeAddress(id) {
+    // Implement your remove functionality here
+    console.log('Remove address with ID:', id);
+  }
 </script>
