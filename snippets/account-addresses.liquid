@@ -97,6 +97,43 @@
     background-color: #dc3545;
     color: white;
   }
+
+  /* Modal Styles */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 10px;
+  }
+
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .close:hover,
+  .close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+  }
 </style>
 
 <section class="addresses">
@@ -105,6 +142,53 @@
     <account-addresses></account-addresses>
   </div>
 </section>
+
+<!-- Edit Address Modal -->
+<div id="editAddressModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2>Edit Address</h2>
+    <form id="editAddressForm">
+      <div class="field">
+        <label for="editFirstName">First Name</label>
+        <input type="text" id="editFirstName" name="first_name">
+      </div>
+      <div class="field">
+        <label for="editLastName">Last Name</label>
+        <input type="text" id="editLastName" name="last_name">
+      </div>
+      <div class="field">
+        <label for="editAddress1">Address 1</label>
+        <input type="text" id="editAddress1" name="address1">
+      </div>
+      <div class="field">
+        <label for="editAddress2">Address 2</label>
+        <input type="text" id="editAddress2" name="address2">
+      </div>
+      <div class="field">
+        <label for="editCity">City</label>
+        <input type="text" id="editCity" name="city">
+      </div>
+      <div class="field">
+        <label for="editProvince">State/Province</label>
+        <input type="text" id="editProvince" name="province">
+      </div>
+      <div class="field">
+        <label for="editZip">ZIP/Postal Code</label>
+        <input type="text" id="editZip" name="zip">
+      </div>
+      <div class="field">
+        <label for="editCountry">Country</label>
+        <input type="text" id="editCountry" name="country">
+      </div>
+      <div class="field">
+        <label for="editPhone">Phone</label>
+        <input type="text" id="editPhone" name="phone">
+      </div>
+      <button type="button" onclick="saveAddress()">Save</button>
+    </form>
+  </div>
+</div>
 
 <script>
   class AccountAddresses extends HTMLElement {
@@ -164,7 +248,7 @@
       const actions = document.createElement('div');
       actions.classList.add('address-actions');
       actions.innerHTML = `
-        <a href="#" class="btn btn--secondary" data-id="${address.id}" onclick="editAddress(${address.id})">Edit</a>
+        <a href="#" class="btn btn--secondary" data-id="${address.id}" onclick="openEditModal(${address.id})">Edit</a>
         <a href="#" class="btn btn--danger" data-id="${address.id}" onclick="removeAddress(${address.id})">Remove</a>
       `;
 
@@ -177,9 +261,67 @@
 
   customElements.define('account-addresses', AccountAddresses);
 
-  function editAddress(id) {
-    // Implement your edit functionality here
-    console.log('Edit address with ID:', id);
+  function openEditModal(id) {
+    // Open modal and populate fields with address data
+    const modal = document.getElementById('editAddressModal');
+    modal.style.display = 'block';
+
+    // Populate the modal with the address data (mock data here)
+    document.getElementById('editFirstName').value = 'John'; // Replace with actual data
+    document.getElementById('editLastName').value = 'Doe'; // Replace with actual data
+    document.getElementById('editAddress1').value = '123 Main St'; // Replace with actual data
+    document.getElementById('editAddress2').value = 'Apt 4B'; // Replace with actual data
+    document.getElementById('editCity').value = 'Anytown'; // Replace with actual data
+    document.getElementById('editProvince').value = 'CA'; // Replace with actual data
+    document.getElementById('editZip').value = '90210'; // Replace with actual data
+    document.getElementById('editCountry').value = 'USA'; // Replace with actual data
+    document.getElementById('editPhone').value = '555-123-4567'; // Replace with actual data
+
+    // Store the address ID for saving later
+    document.getElementById('editAddressForm').dataset.addressId = id;
+  }
+
+  function closeModal() {
+    document.getElementById('editAddressModal').style.display = 'none';
+  }
+
+  async function saveAddress() {
+    // Get the address ID
+    const addressId = document.getElementById('editAddressForm').dataset.addressId;
+
+    // Collect updated address data
+    const updatedAddress = {
+      first_name: document.getElementById('editFirstName').value,
+      last_name: document.getElementById('editLastName').value,
+      address1: document.getElementById('editAddress1').value,
+      address2: document.getElementById('editAddress2').value,
+      city: document.getElementById('editCity').value,
+      province: document.getElementById('editProvince').value,
+      zip: document.getElementById('editZip').value,
+      country: document.getElementById('editCountry').value,
+      phone: document.getElementById('editPhone').value,
+    };
+
+    // Update the address using Recharge API
+    await recharge.address.updateAddress(session, addressId, updatedAddress);
+
+    // Close the modal
+    closeModal();
+
+    // Refresh the addresses list (you may need to re-fetch the data or update the DOM directly)
+    const addressElement = document.querySelector(`.btn[data-id="${addressId}"]`).closest('.address-card');
+    if (addressElement) {
+      addressElement.querySelector('.address-details').innerHTML = `
+        <p>${updatedAddress.first_name} ${updatedAddress.last_name}</p>
+        <p>${updatedAddress.address1}</p>
+        ${updatedAddress.address2 ? `<p>${updatedAddress.address2}</p>` : ''}
+        <p>${updatedAddress.city}</p>
+        <p>${updatedAddress.province}</p>
+        <p>${updatedAddress.country}</p>
+        <p>${updatedAddress.zip}</p>
+        <p>${updatedAddress.phone}</p>
+      `;
+    }
   }
 
   function removeAddress(id) {
