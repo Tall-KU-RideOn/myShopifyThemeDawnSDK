@@ -134,7 +134,9 @@
     async loadAddresses() {
       this.setLoading(true);
       await this.login();
-      const { addresses } = await recharge.address.listAddresses(this.session);
+      const response = await recharge.address.listAddresses(this.session);
+      console.log('Full Response:', response); // Debugging
+      const addresses = response.addresses || response; // Adjusted to account for different possible response structures
       addresses.forEach(address => {
         const tableBody = this.querySelector(`${this.selectors.table} tbody`);
         if (!tableBody) return;
