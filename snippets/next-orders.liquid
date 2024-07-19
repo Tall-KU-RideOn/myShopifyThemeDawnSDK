@@ -42,7 +42,7 @@
       try {
         const response = await recharge.charge.listCharges(this.session, {
           limit: 25,
-          sort_by: 'id-asc',
+          status: 'queued',
         });
         console.log('Full Response:', response); // Log the full response
 
