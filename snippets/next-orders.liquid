@@ -5,10 +5,9 @@
       <table class="orders-table">
         <thead>
           <tr>
-            <td>ID</td>
-            <td>Product</td>
-            <td>Quantity</td>
-            <td>Price</td>
+            <td>Address ID</td>
+            <td>Order ID</td>
+            <td>Total Price</td>
           </tr>
         </thead>
         <tbody></tbody>
@@ -41,7 +40,10 @@
       await this.login();
 
       try {
-        const response = await recharge.charge.listCharges(this.session, {limit: 25, status: 'queued'});
+        const response = await recharge.charge.listCharges(this.session, {
+          limit: 25,
+          sort_by: 'id-asc',
+        });
         console.log('Full Response:', response); // Log the full response
 
         const orders = response.charges;
@@ -74,10 +76,9 @@
     createRow(order) {
       const tr = document.createElement('tr');
       tr.innerHTML = `
+        <td>${order.address_id}</td>
         <td>${order.id}</td>
-        <td>${order.line_items[0].title}</td>
-        <td>${order.line_items[0].quantity}</td>
-        <td>${order.line_items[0].price}</td>
+        <td>${order.total_price}</td>
       `;
       console.log('Appending row:', tr); // Log the row being appended
       return tr;
