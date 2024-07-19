@@ -41,7 +41,7 @@
       await this.login();
 
       try {
-        const response = await recharge.charge.listCharges(this.session);
+        const response = await recharge.order.listOrders(this.session);
         console.log('Full Response:', response); // Log the full response
 
         const orders = response.charges;
