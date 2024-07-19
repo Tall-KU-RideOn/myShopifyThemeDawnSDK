@@ -41,7 +41,7 @@
       await this.login();
       const { subscriptions } = await recharge.subscription.listSubscriptions(this.session);
       const { orders } = await recharge.orders.listOrders(session, {
-          limit: 1,
+          limit: 25,
           sort_by: 'id-asc',
         });
       orders.forEach(order => {
@@ -51,12 +51,6 @@
       });
       this.setLoading(false);
     }
-
-    // Add event listener to the 'Send now' button
-    document.getElementById('send-now-button').addEventListener('click', async function() {
-    await recharge.charge.processCharge(session, data.chargeId);
-    alert('Order processed successfully');
-    });
 
     createRow(order) {
       const tr = document.createElement('tr');
@@ -75,7 +69,7 @@
     }
   }
 
-  customElements.define('account-next-orders', AccountNextOrders);
+  customElements.define('next-orders', AccountNextOrders);
 </script>
 
 {% schema %}
