@@ -302,9 +302,10 @@
       phone: document.getElementById('editPhone').value,
     };
 
+    console.log("Address ID" + addressId)
     // Update the address using Recharge API
     await recharge.address.updateAddress(this.session, addressId, updatedAddress);
-    console.log("Address ID" + addressId)
+
 
     // Close the modal
     closeModal();
