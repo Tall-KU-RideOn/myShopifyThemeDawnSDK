@@ -40,9 +40,9 @@
       this.setLoading(true);
       await this.login();
       const { orders } = await recharge.order.listOrders(session, {
-  limit: 25,
-  sort_by: 'id-asc',
-});
+          limit: 25,
+          sort_by: 'id-asc',
+        });
       orders.forEach(order => {
         const tableBody = this.querySelector(`${this.selectors.table} tbody`);
         if (!tableBody) return;
