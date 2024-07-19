@@ -39,7 +39,7 @@
     async loadNextOrders() {
       this.setLoading(true);
       await this.login();
-      const { orders } = await recharge.order.listOrders(this.session, {
+      const { orders } = await recharge.charge.listCharges(this.session, {
           limit: 25,
           sort_by: 'id-asc',
         });
