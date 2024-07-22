@@ -222,6 +222,7 @@
       modal: '#editAddressModal',
       saveButton: '#saveButton',
       editForm: '#editAddressForm',
+      removeButton: '.btn--danger',
     };
 
     constructor() {
@@ -278,8 +279,7 @@
       actions.classList.add('address-actions');
       actions.innerHTML = `
         <a href="#" class="btn btn--secondary" data-id="${address.id}" onclick="document.querySelector('account-addresses').openEditModal(${address.id})">Edit</a>
-        <a href="#" class="btn btn--danger" data-id="${address.id}" onclick="document.querySelector('account-addresses').removeAddress(${address.id})">Remove</a>
-      `;
+        `;
 
       card.append(details);
       card.append(actions);
@@ -350,16 +350,31 @@
       }
     }
 
-    removeAddress(id) {
-      // Implement your remove functionality here
-      console.log('Remove address with ID:', id);
-    }
-
     addEventListeners() {
       document.querySelector(this.selectors.saveButton).addEventListener('click', () => {
         this.saveAddress();
       });
     }
+
+    async removeAddress(id) {
+      await this.login();
+      await recharge.address.deleteAddress(this.session, id);
+      const addressElement = document.querySelector(`.btn[data-id="${id}"]`).closest('.address-card');
+      if (addressElement) {
+        addressElement.remove();
+      }
+    }
+
+    addEventListeners() {
+      document.querySelectorAll(this.selectors.removeButton).forEach(button => {
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          const addressId = button.getAttribute('data-id');
+          this.removeAddress(addressId);
+        });
+      });
+    }
+
   }
 
   customElements.define('account-addresses', AccountAddresses);
