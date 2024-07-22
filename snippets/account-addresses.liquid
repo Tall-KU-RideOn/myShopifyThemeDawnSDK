@@ -185,7 +185,7 @@
         <label for="editPhone">Phone</label>
         <input type="text" id="editPhone" name="phone">
       </div>
-      <button type="button" onclick="saveAddress()">Save</button>
+      <button type="button" id="saveButton">Save</button>
     </form>
   </div>
 </div>
@@ -285,7 +285,7 @@
     document.getElementById('editAddressModal').style.display = 'none';
   }
 
-  async function saveAddress() {
+  document.querySelector('#saveButton').addEventListener('click', async () => {
     // Get the address ID
     const addressId = document.getElementById('editAddressForm').dataset.addressId;
 
@@ -302,10 +302,8 @@
       phone: document.getElementById('editPhone').value,
     };
 
-    console.log("Address ID" + addressId)
     // Update the address using Recharge API
-    await recharge.address.updateAddress(this.session, addressId, updatedAddress);
-
+    await recharge.address.updateAddress(session, addressId, updatedAddress);
 
     // Close the modal
     closeModal();
@@ -324,7 +322,7 @@
         <p>${updatedAddress.phone}</p>
       `;
     }
-  }
+  });
 
   function removeAddress(id) {
     // Implement your remove functionality here
