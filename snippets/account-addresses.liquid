@@ -146,7 +146,7 @@
 <!-- Edit Address Modal -->
 <div id="editAddressModal" class="modal">
   <div class="modal-content">
-    <span class="close" onclick="closeModal()">&times;</span>
+    <span class="close" onclick="document.querySelector('account-addresses').closeModal()">&times;</span>
     <h2>Edit Address</h2>
     <form id="editAddressForm">
       <div class="field">
@@ -194,11 +194,15 @@
   class AccountAddresses extends HTMLElement {
     selectors = {
       loader: '.addresses-loader',
+      modal: '#editAddressModal',
+      saveButton: '#saveButton',
+      editForm: '#editAddressForm',
     };
 
     constructor() {
       super();
       this.loadAddresses();
+      this.addEventListeners();
     }
 
     async login() {
@@ -248,8 +252,8 @@
       const actions = document.createElement('div');
       actions.classList.add('address-actions');
       actions.innerHTML = `
-        <a href="#" class="btn btn--secondary" data-id="${address.id}" onclick="openEditModal(${address.id})">Edit</a>
-        <a href="#" class="btn btn--danger" data-id="${address.id}" onclick="removeAddress(${address.id})">Remove</a>
+        <a href="#" class="btn btn--secondary" data-id="${address.id}" onclick="document.querySelector('account-addresses').openEditModal(${address.id})">Edit</a>
+        <a href="#" class="btn btn--danger" data-id="${address.id}" onclick="document.querySelector('account-addresses').removeAddress(${address.id})">Remove</a>
       `;
 
       card.append(details);
@@ -257,75 +261,81 @@
 
       return card;
     }
+
+    openEditModal(id) {
+      // Open modal and populate fields with address data
+      const modal = document.getElementById('editAddressModal');
+      modal.style.display = 'block';
+
+      // Populate the modal with the address data (mock data here)
+      document.getElementById('editFirstName').value = 'John'; // Replace with actual data
+      document.getElementById('editLastName').value = 'Doe'; // Replace with actual data
+      document.getElementById('editAddress1').value = '123 Main St'; // Replace with actual data
+      document.getElementById('editAddress2').value = 'Apt 4B'; // Replace with actual data
+      document.getElementById('editCity').value = 'Anytown'; // Replace with actual data
+      document.getElementById('editProvince').value = 'CA'; // Replace with actual data
+      document.getElementById('editZip').value = '90210'; // Replace with actual data
+      document.getElementById('editCountry').value = 'USA'; // Replace with actual data
+      document.getElementById('editPhone').value = '555-123-4567'; // Replace with actual data
+
+      // Store the address ID for saving later
+      document.getElementById('editAddressForm').dataset.addressId = id;
+    }
+
+    closeModal() {
+      document.getElementById('editAddressModal').style.display = 'none';
+    }
+
+    async saveAddress() {
+      // Get the address ID
+      const addressId = document.getElementById('editAddressForm').dataset.addressId;
+
+      // Collect updated address data
+      const updatedAddress = {
+        first_name: document.getElementById('editFirstName').value,
+        last_name: document.getElementById('editLastName').value,
+        address1: document.getElementById('editAddress1').value,
+        address2: document.getElementById('editAddress2').value,
+        city: document.getElementById('editCity').value,
+        province: document.getElementById('editProvince').value,
+        zip: document.getElementById('editZip').value,
+        country: document.getElementById('editCountry').value,
+        phone: document.getElementById('editPhone').value,
+      };
+
+      // Update the address using Recharge API
+      await recharge.address.updateAddress(this.session, addressId, updatedAddress);
+
+      // Close the modal
+      this.closeModal();
+
+      // Refresh the addresses list (you may need to re-fetch the data or update the DOM directly)
+      const addressElement = document.querySelector(`.btn[data-id="${addressId}"]`).closest('.address-card');
+      if (addressElement) {
+        addressElement.querySelector('.address-details').innerHTML = `
+          <p>${updatedAddress.first_name} ${updatedAddress.last_name}</p>
+          <p>${updatedAddress.address1}</p>
+          ${updatedAddress.address2 ? `<p>${updatedAddress.address2}</p>` : ''}
+          <p>${updatedAddress.city}</p>
+          <p>${updatedAddress.province}</p>
+          <p>${updatedAddress.country}</p>
+          <p>${updatedAddress.zip}</p>
+          <p>${updatedAddress.phone}</p>
+        `;
+      }
+    }
+
+    removeAddress(id) {
+      // Implement your remove functionality here
+      console.log('Remove address with ID:', id);
+    }
+
+    addEventListeners() {
+      document.querySelector(this.selectors.saveButton).addEventListener('click', () => {
+        this.saveAddress();
+      });
+    }
   }
 
   customElements.define('account-addresses', AccountAddresses);
-
-  function openEditModal(id) {
-    // Open modal and populate fields with address data
-    const modal = document.getElementById('editAddressModal');
-    modal.style.display = 'block';
-
-    // Populate the modal with the address data (mock data here)
-    document.getElementById('editFirstName').value = 'John'; // Replace with actual data
-    document.getElementById('editLastName').value = 'Doe'; // Replace with actual data
-    document.getElementById('editAddress1').value = '123 Main St'; // Replace with actual data
-    document.getElementById('editAddress2').value = 'Apt 4B'; // Replace with actual data
-    document.getElementById('editCity').value = 'Anytown'; // Replace with actual data
-    document.getElementById('editProvince').value = 'CA'; // Replace with actual data
-    document.getElementById('editZip').value = '90210'; // Replace with actual data
-    document.getElementById('editCountry').value = 'USA'; // Replace with actual data
-    document.getElementById('editPhone').value = '555-123-4567'; // Replace with actual data
-
-    // Store the address ID for saving later
-    document.getElementById('editAddressForm').dataset.addressId = id;
-  }
-
-  function closeModal() {
-    document.getElementById('editAddressModal').style.display = 'none';
-  }
-
-  document.querySelector('#saveButton').addEventListener('click', async () => {
-    // Get the address ID
-    const addressId = document.getElementById('editAddressForm').dataset.addressId;
-
-    // Collect updated address data
-    const updatedAddress = {
-      first_name: document.getElementById('editFirstName').value,
-      last_name: document.getElementById('editLastName').value,
-      address1: document.getElementById('editAddress1').value,
-      address2: document.getElementById('editAddress2').value,
-      city: document.getElementById('editCity').value,
-      province: document.getElementById('editProvince').value,
-      zip: document.getElementById('editZip').value,
-      country: document.getElementById('editCountry').value,
-      phone: document.getElementById('editPhone').value,
-    };
-
-    // Update the address using Recharge API
-    await recharge.address.updateAddress(this.session, addressId, updatedAddress);
-
-    // Close the modal
-    closeModal();
-
-    // Refresh the addresses list (you may need to re-fetch the data or update the DOM directly)
-    const addressElement = document.querySelector(`.btn[data-id="${addressId}"]`).closest('.address-card');
-    if (addressElement) {
-      addressElement.querySelector('.address-details').innerHTML = `
-        <p>${updatedAddress.first_name} ${updatedAddress.last_name}</p>
-        <p>${updatedAddress.address1}</p>
-        ${updatedAddress.address2 ? `<p>${updatedAddress.address2}</p>` : ''}
-        <p>${updatedAddress.city}</p>
-        <p>${updatedAddress.province}</p>
-        <p>${updatedAddress.country}</p>
-        <p>${updatedAddress.zip}</p>
-        <p>${updatedAddress.phone}</p>
-      `;
-    }
-  });
-
-  function removeAddress(id) {
-    // Implement your remove functionality here
-    console.log('Remove address with ID:', id);
-  }
 </script>
