@@ -715,6 +715,49 @@
       {{ product | structured_data }}
     </script>
   </div>
+    <div>(async function() {
+    const session = await recharge.auth.loginShopifyAppProxy();
+
+    async function addOneTimeButton() {
+        const productFormEl = document.querySelector('.product-form');
+        if (!productFormEl) {
+            return;
+        }
+        const addressObj = await recharge.address.listAddresses(session, {
+            limit: 1,
+        });
+        const firstAddress = addressObj?.addresses?.[0];
+        if (firstAddress) {
+            // this will always send the first address in the array.
+            // could write code that opens a modal for the customer to select an address
+            const nextShipmentEl = document.createElement('div');
+            nextShipmentEl.innerHTML = `<button class="add-otp add-otp__add button button--primary" data-subscription-id="${firstAddress.address_id}">Add OTP Product</button>`;
+            nextShipmentEl.onclick = () => addOneTimeProduct(firstAddress);
+            productFormEl.appendChild(nextShipmentEl);
+        }
+    }
+
+    async function addOneTimeProduct(address) {
+        const variantId = document.querySelector('.product__info-container').getAttribute('data-product-variant');
+        const today = new Date();
+        await recharge.onetime.createOnetime(session, {
+            address_id: address.id,
+            next_charge_scheduled_at: today.toISOString().split('T')[0],
+            // same thing for quantity - custom code for customer to select the value
+            quantity: 1,
+            external_variant_id: {
+                ecommerce: variantId,
+            },
+        });
+
+        // This is an optional redirect.
+        window.location = '/account';
+    }
+
+    // Start everything
+    await addOneTimeButton();
+
+})();</div>
 </product-info>
 
 {% schema %}
