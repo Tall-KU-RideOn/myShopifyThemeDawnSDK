@@ -42,7 +42,7 @@
       await this.login();
       const { orders } = await recharge.charge.listCharges(this.session, {
         limit: 25,
-        include: ['order_modifications', "charge_activities"]
+        include: "charge_activities"
       });
       console.log('Next Orders Data:', orders); // Print response to the console
       orders.forEach(order => {
