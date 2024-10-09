@@ -40,7 +40,10 @@
     async loadNextOrders() {
       this.setLoading(true);
       await this.login();
-      const { orders } = await recharge.charge.listCharges(this.session);
+      const { orders } = await recharge.charge.listCharges(this.session, {
+        limit: 25,
+        include: ['order_modifications', "charge_activities"]
+      });
       console.log('Next Orders Data:', orders); // Print response to the console
       orders.forEach(order => {
         const tableBody = this.querySelector(`${this.selectors.table} tbody`);
@@ -51,16 +54,29 @@
     }
 
     createRow(order) {
+      const productInfo = order.line_items.map(item => `${item.product_title}`).join(', ');
+
+      const modificationsInfo = order.order_modifications.length > 0
+        ? order.order_modifications.map(mod => `Modified: ${mod.description}`).join(', ')
+        : 'No modifications';
+
+      const activitiesInfo = order.charge_activities.length > 0
+        ? order.charge_activities.map(act => `Activity: ${act.activity_type}`).join(', ')
+        : 'No charge activities';
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${order.id}</td>
-        <td>${order.product}</td>
+        <td>${productInfo}</td>
         <td>${order.quantity}</td>
-        <td>${order.discounts}</td>
-        <td>${order.price}</td>
+        <td>${modificationsInfo}</td>
+        <td>${activitiesInfo}</td>
       `;
       return tr;
-    }
+  }
+
+}
+
 
     setLoading(isLoading) {
       const loader = this.querySelector(this.selectors.loader);
