@@ -42,7 +42,7 @@
       await this.login();
       const { orders } = await recharge.charge.listCharges(this.session, {
         limit: 2,
-        include: ["customer", "metafields", "payment_methods"]  // Single value in array
+        include: ["metafields", "payment_methods"]
       });
 
       console.log('Next Orders Data lol:', orders); // Print response to the console
