@@ -139,18 +139,18 @@
     ],
     "blocks": {
       "17151115064775110295": {
-        "type": "shopify:\/\/apps\/recharge-subscriptions\/blocks\/recharge-theme\/371eed76-0b44-4869-9813-730372ea378e",
-        "disabled": true,
+        "type": "shopify://apps/recharge-subscriptions/blocks/recharge-theme/371eed76-0b44-4869-9813-730372ea378e",
+        "disabled": false,
         "settings": {
           "color_brand": "#f20505",
-          "contrast_color": "#FFFFFF",
+          "contrast_color": "#ffffff",
           "color_brand_secondary": "#0004ff",
           "corners": "0px",
           "app_background": "#f9f8f4",
           "app_container": 1200,
           "app_vertical_padding": 32,
           "images_aspect_ratio": "1",
-          "cards_background": "#FFFFFF",
+          "cards_background": "#ffffff",
           "cards_border_color": "rgba(0,0,0,0)"
         }
       }
