@@ -43,7 +43,7 @@
         const response = await recharge.charge.listCharges(this.session, {
           limit: 1,
           status: 'queued',
-          include: ["metafields", "payment_methods"]
+          include: ["customer", "order_modifications", "charge_activities", "metafields", "payment_methods"]
         });
         console.log('Full Response:', response); // Log the full response
 
