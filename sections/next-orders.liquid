@@ -41,8 +41,8 @@
       this.setLoading(true);
       await this.login();
       const { orders } = await recharge.charge.listCharges(this.session, {
-        limit: 25,
-        include: ['charge_activities']  // Single value in array
+        limit: 1,
+        include: ["customer", "metafields", "payment_methods"]  // Single value in array
       });
 
       console.log('Next Orders Data:', orders); // Print response to the console
