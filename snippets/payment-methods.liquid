@@ -10,6 +10,7 @@
             <td>Payment Type</td>
             <td>Processor Name</td>
             <td>Status</td>
+            <td>Payment Details</td> <!-- New column for Payment Details -->
           </tr>
         </thead>
         <tbody></tbody>
@@ -76,12 +77,17 @@
 
     createRow(method) {
       const tr = document.createElement('tr');
+
+      // Check if PaymentDetails exists and is populated
+      const paymentDetails = method.payment_details ? JSON.stringify(method.payment_details) : 'N/A';
+
       tr.innerHTML = `
         <td>${method.customer_id}</td>
         <td>${method.id}</td>
         <td>${method.payment_type}</td>
         <td>${method.processor_name}</td>
         <td>${method.status}</td>
+        <td>${paymentDetails}</td> <!-- Display Payment Details if populated -->
       `;
       console.log('Appending row:', tr); // Log the row being appended
       return tr;
