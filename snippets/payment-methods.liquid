@@ -1,0 +1,97 @@
+<section class="payment-methods-section">
+  <div>
+    <h2>Your Payment Methods</h2>
+    <account-payment-methods>
+      <table class="payment-methods-table">
+        <thead>
+          <tr>
+            <td>Customer ID</td>
+            <td>Payment Method ID</td>
+            <td>Payment Type</td>
+            <td>Processor Name</td>
+            <td>Status</td>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="payment-methods-loader">
+        <div class="payment-methods-loader__spinner"><span class="visually-hidden">Loading...</span></div>
+      </div>
+    </account-payment-methods>
+  </div>
+</section>
+
+<script>
+  class AccountPaymentMethods extends HTMLElement {
+    selectors = {
+      loader: '.payment-methods-loader',
+      table: '.payment-methods-table',
+    };
+
+    constructor() {
+      super();
+      this.loadPaymentMethods();
+    }
+
+    async login() {
+      this.session = await recharge.auth.loginShopifyAppProxy();
+    }
+
+    async loadPaymentMethods() {
+      this.setLoading(true);
+      await this.login();
+
+      try {
+        const response = await recharge.paymentMethod.listPaymentMethods(this.session, {
+          limit: 25
+        });
+        console.log('Full Response:', response); // Log the full response
+
+        const paymentMethods = response.payment_methods;
+        console.log('Payment Methods Data:', paymentMethods); // Print response to the console
+
+        if (paymentMethods && paymentMethods.length > 0) {
+          this.populatePaymentMethods(paymentMethods);
+        } else {
+          console.log('No payment methods found');
+        }
+      } catch (error) {
+        console.error('Error fetching payment methods:', error);
+      }
+
+      this.setLoading(false);
+    }
+
+    populatePaymentMethods(paymentMethods) {
+      const tableBody = this.querySelector(`${this.selectors.table} tbody`);
+      if (!tableBody) {
+        console.error('Table body not found');
+        return;
+      }
+
+      paymentMethods.forEach(method => {
+        tableBody.append(this.createRow(method));
+      });
+    }
+
+    createRow(method) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${method.customer_id}</td>
+        <td>${method.id}</td>
+        <td>${method.payment_type}</td>
+        <td>${method.processor_name}</td>
+        <td>${method.status}</td>
+      `;
+      console.log('Appending row:', tr); // Log the row being appended
+      return tr;
+    }
+
+    setLoading(isLoading) {
+      const loader = this.querySelector(this.selectors.loader);
+      loader.style.display = isLoading ? 'block' : 'none';
+    }
+  }
+
+  customElements.define('account-payment-methods', AccountPaymentMethods);
+</script>
