@@ -45,10 +45,10 @@
           status: 'queued',
           include: ["customer", "charge_activities", "metafields", "payment_methods"]
         });
-        console.log('Full Response:', response); // Log the full response
+        // console.log('Full Response:', response); // Log the full response
 
         const orders = response.charges;
-        console.log('Next Orders Data:', orders); // Print response to the console
+        // console.log('Next Orders Data:', orders); // Print response to the console
 
         if (orders && orders.length > 0) {
           this.populateOrders(orders);

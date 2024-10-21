@@ -8,6 +8,7 @@
     try {
       // Login to Shopify App Proxy using Recharge SDK
       const session = await recharge.auth.loginShopifyAppProxy();
+      console.log('Session: ',session);
 
       // Get the Customer Portal Access URL with a specific page destination
       const portalAccess = await recharge.customer.getCustomerPortalAccess(session, {
