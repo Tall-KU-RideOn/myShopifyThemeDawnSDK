@@ -1,58 +1,27 @@
-<portal-link></portal-link>
+<div class="portal-link-container">
+  <!-- Placeholder for the dynamic subscription link -->
+  <a id="manage-subscription-link" href="#" class="button">Manage Subscription</a>
+</div>
 
 <script>
-  class PortalLink extends HTMLElement {
-    constructor() {
-      super();
-      this.attachShadow({ mode: 'open' });
-      this.renderLink();
-    }
+  async function loadSubscriptionLink() {
+    try {
+      // Login to Shopify App Proxy using Recharge SDK
+      const session = await recharge.auth.loginShopifyAppProxy();
 
-    async login() {
-      this.session = await recharge.auth.loginShopifyAppProxy();
-      console.log(this.session)
-    }
+      // Get the Customer Portal Access URL with a specific page destination
+      const portalAccess = await recharge.customer.getCustomerPortalAccess(session, {
+        page_destination: 'overview',
+      });
 
-    async fetchPortalAccess() {
-      this.portalAccess = await recharge.customer.getCustomerPortalAccess(this.session);
-    }
-
-    async renderLink() {
-      await this.login();
-      await this.fetchPortalAccess();
-
-      this.shadowRoot.innerHTML = `
-        <style>
-          a.button {
-            appearance: none;
-            display: inline-block;
-            width: auto;
-            text-decoration: none;
-            text-align: center;
-            vertical-align: middle;
-            cursor: pointer;
-            user-select: none;
-            font: bold 11px Arial;
-            text-decoration: none;
-            background-color: #557b97;
-            color: #fff;
-            padding: 8px 10px;
-            border: 1px solid transparent;
-            border-radius: 2px;
-            font-family: "Work Sans", sans-serif;
-            font-style: normal;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            white-space: normal;
-            font-size: 0.75em;
-            line-height: 1;
-          }
-        </style>
-        <a class="button" href="${this.portalAccess.portal_url}">Manage Subscriptions</a>
-      `;
+      // Set the link href to the portal URL
+      const linkElement = document.getElementById('manage-subscription-link');
+      linkElement.href = portalAccess.portal_url;
+    } catch (error) {
+      console.error('Error fetching subscription portal link:', error);
     }
   }
 
-  customElements.define('portal-link', PortalLink);
+  // Execute the function to load the subscription link
+  loadSubscriptionLink();
 </script>
