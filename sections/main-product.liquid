@@ -716,7 +716,7 @@
     </script>
   </div>
     <div>(async function() {
-    const session = await recharge.auth.loginShopifyAppProxy();
+    this.session = await recharge.auth.loginShopifyAppProxy();
 
     async function addOneTimeButton() {
         const productFormEl = document.querySelector('.product-form');
