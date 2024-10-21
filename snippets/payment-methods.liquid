@@ -46,10 +46,10 @@
         const response = await recharge.paymentMethod.listPaymentMethods(this.session, {
           limit: 25
         });
-        console.log('Full Response:', response); // Log the full response
+        // console.log('Full Response:', response); // Log the full response
 
         const paymentMethods = response.payment_methods;
-        console.log('Payment Methods Data:', paymentMethods); // Print response to the console
+        // console.log('Payment Methods Data:', paymentMethods); // Print response to the console
 
         if (paymentMethods && paymentMethods.length > 0) {
           this.populatePaymentMethods(paymentMethods);

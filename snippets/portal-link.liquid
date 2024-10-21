@@ -13,6 +13,7 @@
       const portalAccess = await recharge.customer.getCustomerPortalAccess(session, {
         page_destination: 'overview',
       });
+      console.log('Full Response:', portalAccess.portal_url); // Log the full response
 
       // Set the link href to the portal URL
       const linkElement = document.getElementById('manage-subscription-link');
