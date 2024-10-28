@@ -67,6 +67,15 @@
             "rb_builder_radius": "4"
           }
         },
+        "testing_metafield_app_star_rating_jxMwEc": {
+          "type": "shopify://apps/testing-metafield-app/blocks/star_rating/c0517315-bd79-4c36-b7bb-e912cca3921f",
+          "settings": {
+            "show_metafield_1": true,
+            "show_metafield_2": true,
+            "metafield_1_label": "Metafield Value",
+            "metafield_2_label": "Metafield Value1"
+          }
+        },
         "buy_buttons": {
           "type": "buy_buttons",
           "settings": {
@@ -120,13 +129,6 @@
           "settings": {
             "share_label": "Share"
           }
-        },
-        "testing_metafield_app_star_rating_nh4TqH": {
-          "type": "shopify://apps/testing-metafield-app/blocks/star_rating/c0517315-bd79-4c36-b7bb-e912cca3921f",
-          "settings": {
-            "product": "{{product}}",
-            "colour": "#ff0000"
-          }
         }
       },
       "block_order": [
@@ -137,14 +139,14 @@
         "variant_picker",
         "quantity_selector",
         "recharge_subscriptions_bundles_widget_WxMK4C",
+        "testing_metafield_app_star_rating_jxMwEc",
         "buy_buttons",
         "description",
         "collapsible-row-0",
         "collapsible-row-1",
         "collapsible-row-2",
         "collapsible-row-3",
-        "share",
-        "testing_metafield_app_star_rating_nh4TqH"
+        "share"
       ],
       "settings": {
         "enable_sticky_info": true,
