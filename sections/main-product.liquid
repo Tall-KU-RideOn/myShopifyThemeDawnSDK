@@ -789,6 +789,20 @@
     await addOneTimeButton();
 
 })();</div>
+
+    <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Calculate 17 days from today
+    let date = new Date();
+    date.setDate(date.getDate() + 17);
+
+    // Format the date as YYYY-MM-DD
+    let formattedDate = date.toISOString().split('T')[0];
+
+    // Set the formatted date to the hidden input's value
+    document.getElementById("swap_next_charge_date").value = formattedDate;
+  });
+</script>
 </product-info>
 
 {% schema %}
