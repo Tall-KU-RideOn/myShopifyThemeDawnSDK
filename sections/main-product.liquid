@@ -136,7 +136,7 @@
                     <!-- Hidden properties -->
                     <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
 
-                    <-- This is the LEADING property in which will be used to Trigger the flow.  The name and value can be whatever you want
+                    <!-- This is the LEADING property in which will be used to Trigger the flow.  The name and value can be whatever you want -->
                     <input
                       type="hidden"
                       form="{{ product_form_id }}"
@@ -155,7 +155,7 @@
                       <label for="quantity">Quantity of Swapped product: </label>
                     <input type="text" form="{{ product_form_id }}" id="swap_quantity" name="properties[swap_quantity]" placeholder="ABC">
 
-                    <-- Engraving input field (for handle, max 3 characters) -->
+                    <!-- Engraving input field (for handle, max 3 characters) -->
                     <label for="engraving">Engraving: </label>
                     <input
                       type="text"
