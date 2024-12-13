@@ -52,8 +52,8 @@
             "first_selection_option": "subscription",
             "display_mode": "normal",
             "brand_color": "#121212",
-            "brand_contrast_color": "#FFFFFF",
-            "selected_bg_color": "#FFFFFF",
+            "brand_contrast_color": "#ffffff",
+            "selected_bg_color": "#ffffff",
             "selected_text_color": "#121212",
             "text_color": "#121212",
             "border_radius": "soft",
@@ -64,8 +64,8 @@
             "frequency_display_type": "buttonGroup",
             "frequency_display_content": "interval",
             "badge_text": "Save up to {maxDiscount}",
-            "badge_text_color": "#FFFFFF",
-            "badge_bg_color": "#0F866A",
+            "badge_text_color": "#ffffff",
+            "badge_bg_color": "#0f866a",
             "benefits": "<ul><li>You save &lcub;discount&rcub;</li><li>Skip, delay or cancel any time</li><li>Free shipping in the US</li><li>Renew on your timeframe</li></ul>",
             "onetime_drawbacks": "",
             "learn_more_text": "Learn more",
@@ -256,12 +256,43 @@
         "padding_top": 36,
         "padding_bottom": 28
       }
+    },
+    "1734103702808ee30c": {
+      "type": "apps",
+      "blocks": {
+        "recharge_stage_v2_bundles_widget_abDEep": {
+          "type": "shopify://apps/recharge-stage-v2/blocks/bundles-widget/e4066d29-5eae-4ad9-8073-b36b4185a940",
+          "settings": {
+            "product": "{{product}}",
+            "rb_theme_color": "#00C09E",
+            "rb_theme_text": "#ffffff",
+            "rb_theme_other_text": "#283965",
+            "rb_theme_bg": "#ffffff",
+            "rb_text_size": "16px",
+            "rb_spacing_width": 1220,
+            "rb_spacing_margins": "15px",
+            "rb_buttons_size": "15px",
+            "rb_buttons_corners": "4",
+            "rb_builder_items_per_row_ns": 4,
+            "rb_builder_items_per_row": "1",
+            "rb_builder_aspect_ratio": "100%",
+            "rb_builder_radius": "4"
+          }
+        }
+      },
+      "block_order": [
+        "recharge_stage_v2_bundles_widget_abDEep"
+      ],
+      "settings": {
+        "include_margins": true
+      }
     }
   },
   "order": [
     "main",
     "image-with-text",
     "multicolumn",
-    "related-products"
+    "related-products",
+    "1734103702808ee30c"
   ]
 }
