@@ -44,7 +44,7 @@
         const response = await recharge.charge.listCharges(this.session, {
           limit: 5, // Adjust to show more recent orders if needed
           status: 'success', // Fetch only completed (previous) orders
-          include: ["customer", "charge_activities", "metafields", "payment_methods", "shipping_lines"]
+          include: ["customer", "charge_activities", "metafields", "payment_methods"]
         });
 
         const orders = response.charges;
