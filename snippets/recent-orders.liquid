@@ -114,6 +114,8 @@
         shippingPrice -
         (order.total_discounts || 0);
 
+      console.log('tieredDiscountValue: ', tieredDiscountValue)
+
       // Ensure no negative values
       return Math.max(tieredDiscountValue, 0).toFixed(2); // Return as a fixed two-decimal string
     }
