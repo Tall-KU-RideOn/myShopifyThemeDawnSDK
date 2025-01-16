@@ -87,34 +87,35 @@
       return tr;
     }
 
-    cal_tiered_discount_value(order) {
-      // Calculate the tiered discount value for the order
+     cal_tiered_discount_value(order) {
+      // Initialize variables with default values
       let totalLineItemPrice = 0;
+      let totalPrice = order.total_price || 0; // Ensure total_price is defined
+      let totalTax = order.total_tax || 0; // Ensure total_tax is defined
+      let totalDiscounts = order.total_discounts || 0; // Ensure total_discounts is defined
+
+       console.log('totalLineItemPrice: ', totalLineItemPrice)
+       console.log('totalPrice: ', totalPrice)
+       console.log('totalTax: ', totalTax)
+       console.log('totalDiscounts: ', totalDiscounts)
 
       // Calculate total line item price
       if (order.line_items && Array.isArray(order.line_items)) {
         order.line_items.forEach(item => {
-          totalLineItemPrice += item.unit_price * item.quantity;
+          const unitPrice = item.unit_price || 0; // Ensure unit_price is defined
+          const quantity = item.quantity || 0; // Ensure quantity is defined
+          totalLineItemPrice += unitPrice * quantity;
         });
       }
-      console.log('totalLineItemPrice: ', totalLineItemPrice)
 
-      // Calculate shipping price
-      const shippingPrice = order.shipping_lines?.reduce((total, line) => total + (line.price || 0), 0) || 0;
-
-      console.log('shippingPrice: ', shippingPrice)
-      console.log('order.total_price: ', order.total_price)
-      console.log('order.total_tax: ', order.total_tax)
-      console.log('order.total_discounts: ', order.total_discounts)
+      // Calculate total shipping price
+      const shippingPrice = order.shipping_lines?.reduce((total, line) => {
+        return total + (line.price || 0); // Ensure each shipping line price is defined
+      }, 0) || 0;
 
       // Calculate tiered discount value
       const tieredDiscountValue =
-        totalLineItemPrice - (order.total_price || 0) +
-        (order.total_tax || 0) +
-        shippingPrice -
-        (order.total_discounts || 0);
-
-      console.log('tieredDiscountValue: ', tieredDiscountValue)
+        totalLineItemPrice - totalPrice + totalTax + shippingPrice - totalDiscounts;
 
       // Ensure no negative values
       return Math.max(tieredDiscountValue, 0).toFixed(2); // Return as a fixed two-decimal string
