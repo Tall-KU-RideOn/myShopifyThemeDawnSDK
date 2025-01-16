@@ -86,44 +86,40 @@
       console.log('Appending row RECENT:', tr); // Log the row being appended
       return tr;
     }
+    cal_tiered_discount_value(order) {
+  // Parse values or default to 0 if undefined
+  const totalLineItemPrice = parseFloat(
+    order.line_items?.reduce((total, item) => {
+      const unitPrice = parseFloat(item.unit_price) || 0; // Ensure unit_price is a number
+      const quantity = parseInt(item.quantity) || 0; // Ensure quantity is an integer
+      return total + unitPrice * quantity;
+    }, 0)
+  ) || 0;
 
-     cal_tiered_discount_value(order) {
-      // Initialize variables with default values
-      let totalLineItemPrice = 0;
-      let totalPrice = order.total_price || 0; // Ensure total_price is defined
-      let totalTax = order.total_tax || 0; // Ensure total_tax is defined
-      let totalDiscounts = order.total_discounts || 0; // Ensure total_discounts is defined
-
-       console.log('totalPrice: ', totalPrice)
-       console.log('totalTax: ', totalTax)
-       console.log('totalDiscounts: ', totalDiscounts)
-
-      // Calculate total line item price
-      if (order.line_items && Array.isArray(order.line_items)) {
-        order.line_items.forEach(item => {
-          const unitPrice = item.unit_price || 0; // Ensure unit_price is defined
-          const quantity = item.quantity || 0; // Ensure quantity is defined
-          totalLineItemPrice += unitPrice * quantity;
-        });
-      }
-      console.log('totalLineItemPrice 1: ', totalLineItemPrice)
-
-      // Calculate total shipping price
-       const shippingPrice = order.shipping_lines?.reduce((total, line) => {
-      // Parse price as a float to ensure it's a number
-      const linePrice = parseFloat(line.price) || 0; // Fallback to 0 if not a valid number
+  const totalPrice = parseFloat(order.total_price) || 0;
+  const totalTax = parseFloat(order.total_tax) || 0;
+  const totalDiscounts = parseFloat(order.total_discounts) || 0;
+  const shippingPrice =
+    order.shipping_lines?.reduce((total, line) => {
+      const linePrice = parseFloat(line.price) || 0; // Ensure line.price is a number
       return total + linePrice;
-    }, 0) || 0; // Default to 0 if shipping_lines is undefined
+    }, 0) || 0;
 
-       console.log('shippingPrice: ', shippingPrice)
+  // Calculate tiered discount value
+  const tieredDiscountValue =
+    totalLineItemPrice - totalPrice + totalTax + shippingPrice - totalDiscounts;
 
-      // Calculate tiered discount value
-      const tieredDiscountValue =
-        totalLineItemPrice - totalPrice + totalTax + shippingPrice - totalDiscounts;
-console.log('tieredDiscountValue 2: ', tieredDiscountValue)
-      // Ensure no negative values
-      return Math.max(tieredDiscountValue, 0).toFixed(2); // Return as a fixed two-decimal string
-    }
+  // Debugging logs to validate each component
+  console.log('Total Line Item Price:', totalLineItemPrice);
+  console.log('Total Price:', totalPrice);
+  console.log('Total Tax:', totalTax);
+  console.log('Total Discounts:', totalDiscounts);
+  console.log('Shipping Price:', shippingPrice);
+  console.log('Tiered Discount Value:', tieredDiscountValue);
+
+  // Ensure no negative values and return a fixed two-decimal string
+  return Math.max(tieredDiscountValue, 0).toFixed(2);
+}
 
     setLoading(isLoading) {
       const loader = this.querySelector(this.selectors.loader);
