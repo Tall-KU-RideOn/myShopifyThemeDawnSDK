@@ -97,9 +97,15 @@
           totalLineItemPrice += item.unit_price * item.quantity;
         });
       }
+      console.log('totalLineItemPrice: ', totalLineItemPrice)
 
       // Calculate shipping price
       const shippingPrice = order.shipping_lines?.reduce((total, line) => total + (line.price || 0), 0) || 0;
+
+      console.log('shippingPrice: ', shippingPrice)
+      console.log('order.total_price: ', order.total_price)
+      console.log('order.total_tax: ', order.total_tax)
+      console.log('order.total_discounts: ', order.total_discounts)
 
       // Calculate tiered discount value
       const tieredDiscountValue =
