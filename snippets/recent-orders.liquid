@@ -109,9 +109,12 @@
       }
 
       // Calculate total shipping price
-      const shippingPrice = order.shipping_lines?.reduce((total, line) => {
-        return total + (line.price || 0); // Ensure each shipping line price is defined
-      }, 0) || 0;
+       const shippingPrice = order.shipping_lines?.reduce((total, line) => {
+      // Parse price as a float to ensure it's a number
+      const linePrice = parseFloat(line.price) || 0; // Fallback to 0 if not a valid number
+      return total + linePrice;
+    }, 0) || 0; // Default to 0 if shipping_lines is undefined
+
 
       // Calculate tiered discount value
       const tieredDiscountValue =
