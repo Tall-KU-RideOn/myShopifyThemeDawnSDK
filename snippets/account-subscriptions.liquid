@@ -91,12 +91,14 @@
     }
 
     async loadSubscriptions() {
+      const tableBody = this.querySelector(`${this.selectors.table} tbody`);
+      if (!tableBody) return;
+      
       this.setLoading(true);
       await this.login();
       const { subscriptions } = await recharge.subscription.listSubscriptions(this.session);
-      subscriptions.forEach(subscription => {
-        const tableBody = this.querySelector(`${this.selectors.table} tbody`);
-        if (!tableBody) return;
+      subscriptions.forEach(subscription => {        
+        console.log(subscription);
         tableBody.append(this.createRow(subscription));
       });
       this.setLoading(false);
