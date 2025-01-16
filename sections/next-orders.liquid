@@ -10,6 +10,7 @@
             <td>Quantity</td>
             <td>Discounts</td>
             <td>Price</td>
+            <td>Tiered Discount Value</td> <!-- New column -->
           </tr>
         </thead>
         <tbody></tbody>
@@ -45,10 +46,7 @@
         include: ["metafields", "payment_methods"]
       });
 
-      console.log('Next Orders Data lol why:', orders); 
-      console.log('Next Orders Data lol why:', orders);
-      console.log('Next Orders Data lol why:', orders);
-      console.log('Next Orders Data lol why:', orders); // Print response to the console
+      console.log('Next Orders Data:', orders); // Print response to the console
       orders.forEach(order => {
         const tableBody = this.querySelector(`${this.selectors.table} tbody`);
         if (!tableBody) return;
@@ -68,6 +66,8 @@
         ? order.charge_activities.map(act => `Activity: ${act.activity_type}`).join(', ')
         : 'No charge activities';
 
+      const tieredDiscountValue = this.cal_tiered_discount_value(order);
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${order.id}</td>
@@ -75,12 +75,26 @@
         <td>${order.quantity}</td>
         <td>${modificationsInfo}</td>
         <td>${activitiesInfo}</td>
+        <td>${tieredDiscountValue}</td> <!-- New column for the tiered discount value -->
       `;
       return tr;
-  }
+    }
 
-}
+    cal_tiered_discount_value(order) {
+      // Calculate the tiered discount value for the order
+      let orderTieredDiscountAmount = 0;
 
+      order.line_items.forEach(item => {
+        const discountForItem = (item.original_price - item.unit_price) * item.quantity;
+        orderTieredDiscountAmount += discountForItem;
+      });
+
+      // Subtract total discounts from calculated tiered discount amount
+      orderTieredDiscountAmount -= order.total_discounts || 0;
+
+      // Ensure no negative values
+      return Math.max(orderTieredDiscountAmount, 0).toFixed(2); // Return as a fixed two-decimal string
+    }
 
     setLoading(isLoading) {
       const loader = this.querySelector(this.selectors.loader);
@@ -90,4 +104,3 @@
 
   customElements.define('next-orders', AccountNextOrders);
 </script>
-
