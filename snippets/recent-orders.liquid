@@ -1,0 +1,116 @@
+<section class="next-orders">
+  <div>
+    <h2>Your PREVIOUS Orders</h2>
+    <account-next-orders>
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <td>Address ID</td>
+            <td>Order ID</td>
+            <td>Total Price</td>
+            <td>Tiered Discount Value</td> <!-- New column -->
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="orders-loader">
+        <div class="orders-loader__spinner"><span class="visually-hidden">Loading...</span></div>
+      </div>
+    </account-next-orders>
+  </div>
+</section>
+
+<script>
+  class AccountNextOrders extends HTMLElement {
+    selectors = {
+      loader: '.orders-loader',
+      table: '.orders-table',
+    };
+
+    constructor() {
+      super();
+      this.loadNextOrders();
+    }
+
+    async login() {
+      this.session = await recharge.auth.loginShopifyAppProxy();
+    }
+
+    async loadNextOrders() {
+      this.setLoading(true);
+      await this.login();
+
+      try {
+        const response = await recharge.charge.listCharges(this.session, {
+          limit: 1,
+          status: 'success',
+          include: ["customer", "charge_activities", "metafields", "payment_methods"]
+        });
+
+        const orders = response.charges;
+
+        if (orders && orders.length > 0) {
+          this.populateOrders(orders);
+        } else {
+          console.log('No orders found');
+        }
+      } catch (error) {
+        console.error('Error fetching next orders:', error);
+      }
+
+      this.setLoading(false);
+    }
+
+    populateOrders(orders) {
+      const tableBody = this.querySelector(`${this.selectors.table} tbody`);
+      if (!tableBody) {
+        console.error('Table body not found');
+        return;
+      }
+
+      orders.forEach(order => {
+        tableBody.append(this.createRow(order));
+      });
+    }
+
+    createRow(order) {
+      const tieredDiscountValue = this.cal_tiered_discount_value(order); // Calculate tiered discount
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${order.address_id}</td>
+        <td>${order.id}</td>
+        <td>${order.total_price}</td>
+        <td>${tieredDiscountValue}</td> <!-- Add tiered discount value -->
+      `;
+      console.log('Appending row:', tr); // Log the row being appended
+      return tr;
+    }
+
+    cal_tiered_discount_value(order) {
+      // Calculate the tiered discount value for the order
+      let orderTieredDiscountAmount = 0;
+
+      // Ensure line_items exist
+      if (order.line_items && Array.isArray(order.line_items)) {
+        order.line_items.forEach(item => {
+          const discountForItem = (item.original_price - item.unit_price) * item.quantity;
+          orderTieredDiscountAmount += discountForItem;
+        });
+      }
+
+      // Subtract total discounts from calculated tiered discount amount
+      orderTieredDiscountAmount -= order.total_discounts || 0;
+
+      // Ensure no negative values
+      return Math.max(orderTieredDiscountAmount, 0).toFixed(2); // Return as a fixed two-decimal string
+    }
+
+    setLoading(isLoading) {
+      const loader = this.querySelector(this.selectors.loader);
+      loader.style.display = isLoading ? 'block' : 'none';
+    }
+  }
+
+  customElements.define('account-next-orders', AccountNextOrders);
+</script>
