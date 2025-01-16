@@ -1,102 +1,125 @@
+<section class="recent-orders">
+  <div>
+    <h2>Your PREVIOUS Orders</h2>
+    <account-recent-orders>
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <td>Address ID</td>
+            <td>Order ID</td>
+            <td>Total Price</td>
+            <td>Tiered Discount Value</td> <!-- New column -->
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="orders-loader">
+        <div class="orders-loader__spinner"><span class="visually-hidden">Loading...</span></div>
+      </div>
+    </account-recent-orders>
+  </div>
+</section>
+
 <script>
-  if (!customElements.get('account-recent-orders')) {
-    class AccountRecentOrders extends HTMLElement {
-      selectors = {
-        loader: '.orders-loader',
-        table: '.orders-table',
-      };
+  class AccountRecentOrders extends HTMLElement {
+    selectors = {
+      loader: '.orders-loader',
+      table: '.orders-table',
+    };
 
-      constructor() {
-        super();
-        this.loadRecentOrders();
-      }
+    constructor() {
+      super();
+      this.loadRecentOrders();
+    }
 
-      async login() {
-        this.session = await recharge.auth.loginShopifyAppProxy();
-      }
+    async login() {
+      this.session = await recharge.auth.loginShopifyAppProxy();
+    }
 
-      async loadRecentOrders() {
-        this.setLoading(true);
-        await this.login();
+    async loadRecentOrders() {
+      this.setLoading(true);
+      await this.login();
 
-        try {
-          const response = await recharge.charge.listCharges(this.session, {
-            limit: 5, // Adjust the number of recent orders as needed
-            status: 'success',
-            include: ["customer", "charge_activities", "metafields", "payment_methods", "shipping_lines"]
-          });
+      try {
+        const response = await recharge.charge.listCharges(this.session, {
+          limit: 5, // Adjust to show more recent orders if needed
+          status: 'success', // Fetch only completed (previous) orders
+          include: ["customer", "charge_activities", "metafields", "payment_methods", "shipping_lines"]
+        });
 
-          const orders = response.charges;
+        const orders = response.charges;
 
-          if (orders && orders.length > 0) {
-            this.populateOrders(orders);
-          } else {
-            console.log('No orders found');
-          }
-        } catch (error) {
-          console.error('Error fetching recent orders:', error);
+        if (orders && orders.length > 0) {
+          this.populateOrders(orders);
+        } else {
+          console.log('No orders found');
         }
-
-        this.setLoading(false);
+      } catch (error) {
+        console.error('Error fetching recent orders:', error);
       }
 
-      populateOrders(orders) {
-        const tableBody = this.querySelector(`${this.selectors.table} tbody`);
-        if (!tableBody) {
-          console.error('Table body not found');
-          return;
-        }
+      this.setLoading(false);
+    }
 
-        orders.forEach(order => {
-          tableBody.append(this.createRow(order));
+    populateOrders(orders) {
+      const tableBody = this.querySelector(`${this.selectors.table} tbody`);
+      if (!tableBody) {
+        console.error('Table body not found');
+        return;
+      }
+
+      orders.forEach(order => {
+        tableBody.append(this.createRow(order));
+      });
+    }
+
+    createRow(order) {
+      const tieredDiscountValue = this.cal_tiered_discount_value(order); // Calculate tiered discount
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${order.address_id}</td>
+        <td>${order.id}</td>
+        <td>${order.total_price}</td>
+        <td>${tieredDiscountValue}</td> <!-- Add tiered discount value -->
+      `;
+      console.log('Appending row RECENT:', tr); // Log the row being appended
+      return tr;
+    }
+
+    cal_tiered_discount_value(order) {
+      // Calculate the tiered discount value for the order
+      let totalLineItemPrice = 0;
+
+      // Calculate total line item price
+      if (order.line_items && Array.isArray(order.line_items)) {
+        order.line_items.forEach(item => {
+          totalLineItemPrice += item.unit_price * item.quantity;
         });
       }
 
-      createRow(order) {
-        const tieredDiscountValue = this.cal_tiered_discount_value(order); // Calculate tiered discount
+      // Calculate shipping price
+      const shippingPrice = order.shipping_lines?.reduce((total, line) => total + (line.price || 0), 0) || 0;
 
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${order.address_id}</td>
-          <td>${order.id}</td>
-          <td>${order.total_price}</td>
-          <td>${tieredDiscountValue}</td> <!-- Add tiered discount value -->
-        `;
-        console.log('Appending row PREVIOUS:', tr); // Log the row being appended
-        return tr;
-      }
+      // Calculate tiered discount value
+      const tieredDiscountValue =
+        totalLineItemPrice - (order.total_price || 0) +
+        (order.total_tax || 0) +
+        shippingPrice -
+        (order.total_discounts || 0);
 
-      cal_tiered_discount_value(order) {
-        let totalLineItemPrice = 0;
-
-        // Calculate total line item price
-        if (order.line_items && Array.isArray(order.line_items)) {
-          order.line_items.forEach(item => {
-            totalLineItemPrice += item.unit_price * item.quantity;
-          });
-        }
-
-        // Calculate shipping price
-        const shippingPrice = order.shipping_lines?.reduce((total, line) => total + (line.price || 0), 0) || 0;
-
-        // Calculate tiered discount value
-        const tieredDiscountValue =
-          totalLineItemPrice - (order.total_price || 0) +
-          (order.total_tax || 0) +
-          shippingPrice -
-          (order.total_discounts || 0);
-
-        // Ensure no negative values
-        return Math.max(tieredDiscountValue, 0).toFixed(2); // Return as a fixed two-decimal string
-      }
-
-      setLoading(isLoading) {
-        const loader = this.querySelector(this.selectors.loader);
-        loader.style.display = isLoading ? 'block' : 'none';
-      }
+      // Ensure no negative values
+      return Math.max(tieredDiscountValue, 0).toFixed(2); // Return as a fixed two-decimal string
     }
 
-    // Define the new custom element
+    setLoading(isLoading) {
+      const loader = this.querySelector(this.selectors.loader);
+      loader.style.display = isLoading ? 'block' : 'none';
+    }
+  }
+
+  // Define the custom element for recent orders
+  if (!customElements.get('account-recent-orders')) {
     customElements.define('account-recent-orders', AccountRecentOrders);
   }
 </script>
