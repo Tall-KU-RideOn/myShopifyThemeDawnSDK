@@ -98,7 +98,7 @@
         const response = await recharge.charge.listCharges(this.session, {
           limit: 5,
           status: 'success', // Fetch recent (completed) orders
-          include: ["customer", "charge_activities", "metafields", "payment_methods"]
+          include: ["customer", "charge_activities", "metafields", "payment_methods", "shipping_lines"]
         });
 
         const orders = response.charges;
@@ -128,13 +128,16 @@
     }
 
     createRow(order) {
-      const tieredDiscountValue = this.cal_tiered_discount_value(order);
+      const totalPrice = parseFloat(order.total_price) || 0; // Safely parse total_price
+      const tieredDiscountValue = this.cal_tiered_discount_value(order); // Calculate tiered discount
+
+      console.log('Order Total Price:', totalPrice); // Debug total_price value
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${order.address_id}</td>
         <td>${order.id}</td>
-        <td>${order.total_price.toFixed(2)}</td>
+        <td>${totalPrice.toFixed(2)}</td> <!-- Safely format total_price -->
         <td>${tieredDiscountValue}</td>
       `;
       return tr;
