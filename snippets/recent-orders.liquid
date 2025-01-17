@@ -98,7 +98,7 @@
         const response = await recharge.charge.listCharges(this.session, {
           limit: 5,
           status: 'success', // Fetch recent (completed) orders
-          include: ["customer", "charge_activities", "metafields", "payment_methods", "shipping_lines"]
+          include: ["customer", "charge_activities", "metafields", "payment_methods"]
         });
 
         const orders = response.charges;
