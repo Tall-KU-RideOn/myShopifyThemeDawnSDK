@@ -389,8 +389,7 @@
       "details": "Account details",
       "view_addresses": "View addresses",
       "return": "Return to Account details",
-      "overview": "OverView",
-      "view_recent_orders": "View Recent Orders"
+      "overview": "OverView"
     },
     "account_fallback": "Account",
     "activate_account": {
