@@ -166,6 +166,11 @@
           return total + linePrice;
         }, 0) || 0;
 
+      console.log('totalPrice: ', totalPrice);
+      console.log('totalTax: ', totalTax);
+      console.log('totalDiscounts: ', totalDiscounts);
+      console.log('shippingPrice: ', shippingPrice);
+
       // Calculate the tiered discount value
       const tieredDiscountValue =
         totalLineItemPrice - totalPrice + totalTax + shippingPrice - totalDiscounts;
