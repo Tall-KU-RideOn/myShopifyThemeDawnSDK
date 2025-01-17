@@ -146,6 +146,7 @@
     }
 
     cal_tiered_discount_value(order) {
+      console.log('Order Details: ', order)
       let totalLineItemPrice = 0;
 
       // Calculate total line item price
@@ -168,11 +169,6 @@
           return total + linePrice;
         }, 0) || 0;
 
-      console.log('totalLineItemPrice: ', totalLineItemPrice);
-      console.log('Order Total Price:', totalPrice); // Debug total_price value
-      console.log('totalTax: ', totalTax);
-      console.log('shippingPrice: ', shippingPrice);
-      console.log('totalDiscounts: ', totalDiscounts);
 
 
       // Calculate the tiered discount value
