@@ -1,8 +1,7 @@
 {
   "sections": {
     "main": {
-      "type": "recent-orders",
-      "settings": {}
+      "type": "main-recent-orders"
     }
   },
   "order": ["main"]

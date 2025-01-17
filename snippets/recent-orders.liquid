@@ -1,22 +1,55 @@
+<style>
+  .recent-orders {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .orders-table {
+    width: 75%;
+    border-collapse: collapse;
+  }
+
+  .orders-table th, .orders-table td {
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    text-align: left;
+  }
+
+  .orders-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+  }
+
+  .orders-loader {
+    display: flex;
+    justify-content: center;
+    padding-top: 16px;
+  }
+
+  .orders-loader__spinner {
+    display: inline-block;
+    border-top: 2px solid currentcolor;
+    border-right: 2px solid currentcolor;
+    border-bottom-style: solid;
+    border-left-style: solid;
+    border-radius: 99999px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+    animation: 0.45s linear 0s infinite normal none running spinner;
+    width: var(--spinner-size);
+    height: var(--spinner-size);
+    --spinner-size: 5rem;
+  }
+</style>
+
 <section class="recent-orders">
   <div>
-    <h2>Your PREVIOUS Orders</h2>
-    <account-recent-orders>
-      <table class="orders-table">
-        <thead>
-          <tr>
-            <td>Address ID</td>
-            <td>Order ID</td>
-            <td>Total Price</td>
-            <td>Tiered Discount Value</td> <!-- New column -->
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <div class="orders-loader">
-        <div class="orders-loader__spinner"><span class="visually-hidden">Loading...</span></div>
-      </div>
-    </account-recent-orders>
+    <h2>Recent Orders</h2>
+    <account-recent-orders></account-recent-orders>
   </div>
 </section>
 
@@ -42,9 +75,9 @@
 
       try {
         const response = await recharge.charge.listCharges(this.session, {
-          limit: 5, // Adjust to show more recent orders if needed
-          status: 'success', // Fetch only completed (previous) orders
-          include: ["customer", "charge_activities", "metafields", "payment_methods"]
+          limit: 5,
+          status: 'success',
+          include: ["customer", "charge_activities", "metafields", "payment_methods", "shipping_lines"]
         });
 
         const orders = response.charges;
@@ -74,52 +107,42 @@
     }
 
     createRow(order) {
-      const tieredDiscountValue = this.cal_tiered_discount_value(order); // Calculate tiered discount
+      const tieredDiscountValue = this.cal_tiered_discount_value(order);
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${order.address_id}</td>
         <td>${order.id}</td>
         <td>${order.total_price}</td>
-        <td>${tieredDiscountValue}</td> <!-- Add tiered discount value -->
+        <td>${tieredDiscountValue}</td>
       `;
-      console.log('Appending row RECENT:', tr); // Log the row being appended
       return tr;
     }
+
     cal_tiered_discount_value(order) {
-  // Parse values or default to 0 if undefined
-  const totalLineItemPrice = parseFloat(
-    order.line_items?.reduce((total, item) => {
-      const unitPrice = parseFloat(item.unit_price) || 0; // Ensure unit_price is a number
-      const quantity = parseInt(item.quantity) || 0; // Ensure quantity is an integer
-      return total + unitPrice * quantity;
-    }, 0)
-  ) || 0;
+      let totalLineItemPrice = 0;
+      if (order.line_items && Array.isArray(order.line_items)) {
+        order.line_items.forEach(item => {
+          const unitPrice = parseFloat(item.unit_price) || 0;
+          const quantity = parseInt(item.quantity) || 0;
+          totalLineItemPrice += unitPrice * quantity;
+        });
+      }
 
-  const totalPrice = parseFloat(order.total_price) || 0;
-  const totalTax = parseFloat(order.total_tax) || 0;
-  const totalDiscounts = parseFloat(order.total_discounts) || 0;
-  const shippingPrice =
-    order.shipping_lines?.reduce((total, line) => {
-      const linePrice = parseFloat(line.price) || 0; // Ensure line.price is a number
-      return total + linePrice;
-    }, 0) || 0;
+      const totalPrice = parseFloat(order.total_price) || 0;
+      const totalTax = parseFloat(order.total_tax) || 0;
+      const totalDiscounts = parseFloat(order.total_discounts) || 0;
+      const shippingPrice =
+        order.shipping_lines?.reduce((total, line) => {
+          const linePrice = parseFloat(line.price) || 0;
+          return total + linePrice;
+        }, 0) || 0;
 
-  // Calculate tiered discount value
-  const tieredDiscountValue =
-    totalLineItemPrice - totalPrice + totalTax + shippingPrice - totalDiscounts;
+      const tieredDiscountValue =
+        totalLineItemPrice - totalPrice + totalTax + shippingPrice - totalDiscounts;
 
-  // Debugging logs to validate each component
-  console.log('Total Line Item Price:', totalLineItemPrice);
-  console.log('Total Price:', totalPrice);
-  console.log('Total Tax:', totalTax);
-  console.log('Total Discounts:', totalDiscounts);
-  console.log('Shipping Price:', shippingPrice);
-  console.log('Tiered Discount Value:', tieredDiscountValue);
-
-  // Ensure no negative values and return a fixed two-decimal string
-  return Math.max(tieredDiscountValue, 0).toFixed(2);
-}
+      return Math.max(tieredDiscountValue, 0).toFixed(2);
+    }
 
     setLoading(isLoading) {
       const loader = this.querySelector(this.selectors.loader);
@@ -127,7 +150,6 @@
     }
   }
 
-  // Define the custom element for recent orders
   if (!customElements.get('account-recent-orders')) {
     customElements.define('account-recent-orders', AccountRecentOrders);
   }
