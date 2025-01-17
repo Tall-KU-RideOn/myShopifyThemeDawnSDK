@@ -139,7 +139,7 @@
         <td>${order.address_id}</td>
         <td>${order.id}</td>
         <td>${totalPrice.toFixed(2)}</td>
-        <td>${totalDiscounts}</td><!-- Safely format total_price -->
+        <td>${order.total_discounts}</td><!-- Safely format total_price -->
         <td>${tieredDiscountValue}</td>
       `;
       return tr;
