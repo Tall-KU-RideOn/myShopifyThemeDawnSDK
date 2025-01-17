@@ -1,0 +1,9 @@
+{
+  "sections": {
+    "main": {
+      "type": "recent-orders",
+      "settings": {}
+    }
+  },
+  "order": ["main"]
+}
