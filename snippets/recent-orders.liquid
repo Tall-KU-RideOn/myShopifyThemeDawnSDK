@@ -62,6 +62,7 @@
             <th>Address ID</th>
             <th>Order ID</th>
             <th>Total Price</th>
+            <th>Total Discount Value</th>
             <th>Tiered Discount Value</th>
           </tr>
         </thead>
@@ -137,7 +138,8 @@
       tr.innerHTML = `
         <td>${order.address_id}</td>
         <td>${order.id}</td>
-        <td>${totalPrice.toFixed(2)}</td> <!-- Safely format total_price -->
+        <td>${totalPrice.toFixed(2)}</td>
+        <td>${totalDiscounts}</td><!-- Safely format total_price -->
         <td>${tieredDiscountValue}</td>
       `;
       return tr;
