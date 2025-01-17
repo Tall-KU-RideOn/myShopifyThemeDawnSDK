@@ -175,7 +175,7 @@
 
       // Calculate the tiered discount value
       const tieredDiscountValue =
-        totalLineItemPrice - totalPrice + totalTax + shippingPrice - totalDiscounts;
+              (totalLineItemPrice - totalPrice) + totalTax + shippingPrice - totalDiscounts;
 
       console.log('tieredDiscountValue: ', tieredDiscountValue);
       // Return the value with two decimal places, ensuring no negative values
