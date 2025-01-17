@@ -177,6 +177,7 @@
       const tieredDiscountValue =
         totalLineItemPrice - totalPrice + totalTax + shippingPrice - totalDiscounts;
 
+      console.log('tieredDiscountValue: ', tieredDiscountValue);
       // Return the value with two decimal places, ensuring no negative values
       return Math.max(tieredDiscountValue, 0).toFixed(2);
     }
