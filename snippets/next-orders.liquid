@@ -8,7 +8,8 @@
             <td>Address ID</td>
             <td>Order ID</td>
             <td>Total Price</td>
-            <td>Tiered Discount Value</td> <!-- New column -->
+            <td>Tiered Discount Value</td>
+            <td>Discount Code Value</td>
           </tr>
         </thead>
         <tbody></tbody>
@@ -81,8 +82,8 @@
         <td>${order.address_id}</td>
         <td>${order.id}</td>
         <td>${order.total_price}</td>
-        <td>${order.total_discounts}</td>
-        <td>${tieredDiscountValue}</td> <!-- Add tiered discount value -->
+        <td>${tieredDiscountValue}</td>
+        <td>${order.total_discounts}</td><!-- Add tiered discount value -->
       `;
       console.log('Appending row RECENT:', tr); // Log the row being appended
       return tr;
