@@ -9,6 +9,7 @@
   .orders-table {
     width: 75%;
     border-collapse: collapse;
+    margin-top: 20px;
   }
 
   .orders-table th, .orders-table td {
@@ -44,12 +45,32 @@
     height: var(--spinner-size);
     --spinner-size: 5rem;
   }
+
+  h2 {
+    text-align: center;
+    margin-top: 20px;
+  }
 </style>
 
 <section class="recent-orders">
   <div>
-    <h2>Recent Orders</h2>
-    <account-recent-orders></account-recent-orders>
+    <h2>Your Recent Orders</h2>
+    <account-recent-orders>
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Address ID</th>
+            <th>Order ID</th>
+            <th>Total Price</th>
+            <th>Tiered Discount Value</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="orders-loader">
+        <div class="orders-loader__spinner"><span class="visually-hidden">Loading...</span></div>
+      </div>
+    </account-recent-orders>
   </div>
 </section>
 
@@ -70,13 +91,13 @@
     }
 
     async loadRecentOrders() {
-      this.setLoading(true);
+      this.setLoading(true); // Start the loader
       await this.login();
 
       try {
         const response = await recharge.charge.listCharges(this.session, {
           limit: 5,
-          status: 'success',
+          status: 'success', // Fetch recent (completed) orders
           include: ["customer", "charge_activities", "metafields", "payment_methods", "shipping_lines"]
         });
 
@@ -91,7 +112,7 @@
         console.error('Error fetching recent orders:', error);
       }
 
-      this.setLoading(false);
+      this.setLoading(false); // Stop the loader
     }
 
     populateOrders(orders) {
@@ -113,7 +134,7 @@
       tr.innerHTML = `
         <td>${order.address_id}</td>
         <td>${order.id}</td>
-        <td>${order.total_price}</td>
+        <td>${order.total_price.toFixed(2)}</td>
         <td>${tieredDiscountValue}</td>
       `;
       return tr;
@@ -121,6 +142,8 @@
 
     cal_tiered_discount_value(order) {
       let totalLineItemPrice = 0;
+
+      // Calculate total line item price
       if (order.line_items && Array.isArray(order.line_items)) {
         order.line_items.forEach(item => {
           const unitPrice = parseFloat(item.unit_price) || 0;
@@ -132,21 +155,29 @@
       const totalPrice = parseFloat(order.total_price) || 0;
       const totalTax = parseFloat(order.total_tax) || 0;
       const totalDiscounts = parseFloat(order.total_discounts) || 0;
+
+      // Calculate total shipping price
       const shippingPrice =
         order.shipping_lines?.reduce((total, line) => {
           const linePrice = parseFloat(line.price) || 0;
           return total + linePrice;
         }, 0) || 0;
 
+      // Calculate the tiered discount value
       const tieredDiscountValue =
         totalLineItemPrice - totalPrice + totalTax + shippingPrice - totalDiscounts;
 
+      // Return the value with two decimal places, ensuring no negative values
       return Math.max(tieredDiscountValue, 0).toFixed(2);
     }
 
     setLoading(isLoading) {
-      const loader = this.querySelector(this.selectors.loader);
-      loader.style.display = isLoading ? 'block' : 'none';
+      const loader = this.querySelector(this.selectors.loader); // Find the loader element
+      if (!loader) {
+        console.warn('Loader element not found'); // Log a warning if missing
+        return;
+      }
+      loader.style.display = isLoading ? 'block' : 'none'; // Toggle the loader visibility
     }
   }
 
