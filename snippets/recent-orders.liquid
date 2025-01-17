@@ -131,7 +131,7 @@
       const totalPrice = parseFloat(order.total_price) || 0; // Safely parse total_price
       const tieredDiscountValue = this.cal_tiered_discount_value(order); // Calculate tiered discount
 
-      console.log('Order Total Price:', totalPrice); // Debug total_price value
+
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -166,10 +166,12 @@
           return total + linePrice;
         }, 0) || 0;
 
-      console.log('totalPrice: ', totalPrice);
+      console.log('totalLineItemPrice: ', totalLineItemPrice);
+      console.log('Order Total Price:', totalPrice); // Debug total_price value
       console.log('totalTax: ', totalTax);
-      console.log('totalDiscounts: ', totalDiscounts);
       console.log('shippingPrice: ', shippingPrice);
+      console.log('totalDiscounts: ', totalDiscounts);
+
 
       // Calculate the tiered discount value
       const tieredDiscountValue =
