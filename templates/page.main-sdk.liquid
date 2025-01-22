@@ -44,6 +44,7 @@
         await this.login();
 
         try {
+          console.log('We are Here')
           const response = await recharge.charge.listCharges(this.session, {
             limit: 5, // Fetch the 5 most recent orders
             status: 'processed', // Status for completed orders
