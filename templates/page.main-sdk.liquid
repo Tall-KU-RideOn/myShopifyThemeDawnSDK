@@ -20,36 +20,31 @@
   </section>
 
   <script>
-    class AccountRecentOrders extends HTMLElement {
-      selectors = {
-        loader: '.orders-loader',
-        table: '.orders-table',
-      };
+    class AccountNewOrders extends HTMLElement {
+    selectors = {
+      loader: '.orders-loader',
+      table: '.orders-table',
+    };
 
-      constructor() {
-        super();
-        this.loadRecentOrders();
-      }
+    constructor() {
+      super();
+      this.loadNextOrders();
+    }
 
-      async login() {
-        try {
-          this.session = await recharge.auth.loginShopifyAppProxy();
-        } catch (error) {
-          console.error('Error during Recharge login:', error);
-        }
-      }
+    async login() {
+      this.session = await recharge.auth.loginShopifyAppProxy();
+    }
 
-      async loadRecentOrders() {
-        this.setLoading(true);
-        await this.login();
+    async loadNextOrders() {
+      this.setLoading(true);
+      await this.login();
 
-        try {
-          console.log('We are Here')
-          const response = await recharge.charge.listCharges(this.session, {
-            limit: 5, // Fetch the 5 most recent orders
-            status: 'processed', // Status for completed orders
-            include: ["customer", "charge_activities", "metafields", "payment_methods"]
-          });
+      try {
+        const response = await recharge.charge.listCharges(this.session, {
+          limit: 1,
+          status: 'queued',
+          include: ["customer", "charge_activities", "metafields", "payment_methods"]
+        });
           console.log('Recent Orders: ', response.charges)
           const orders = response.charges;
 
