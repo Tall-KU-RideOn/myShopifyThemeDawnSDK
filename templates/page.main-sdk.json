@@ -1,9 +1,0 @@
-{
-  "sections": {
-    "main": {
-      "type": "main-sdk",
-      "settings": {}
-    }
-  },
-  "order": ["main"]
-}

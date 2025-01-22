@@ -1,0 +1,10 @@
+{% if customer %}
+  <section class="recent-orders">
+    <h2>Your Recent Orders</h2>
+    <!-- Add Recharge code or any other content here -->
+    <p>Here is where the recent orders will appear.</p>
+  </section>
+{% else %}
+  <p>You must be logged in to view this page.</p>
+  <a href="{{ routes.account_login_url }}">Log in</a>
+{% endif %}
