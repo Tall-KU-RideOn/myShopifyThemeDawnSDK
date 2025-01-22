@@ -5,6 +5,9 @@
   data-product-id="{{ product.id }}"
   data-update-url="true"
   data-url="{{ product.url }}"
+  {% if section.settings.image_zoom == 'hover' %}
+    data-zoom-on-hover
+  {% endif %}
 >
   {{ 'section-main-product.css' | asset_url | stylesheet_tag }}
   {{ 'component-accordion.css' | asset_url | stylesheet_tag }}
@@ -135,8 +138,7 @@
                   {%- form 'product', product, id: product_form_installment_id, class: 'installment caption-large' -%}
                     <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
 
-                    
-                                        {% if product.id == 9563756921111 %}
+                    {% if product.id == 9563756921111 %}
                       <!-- Hidden properties -->
                       <input
                         type="hidden"
@@ -161,7 +163,7 @@
                         type="hidden"
                         form="{{ product_form_id }}"
                         name="properties[swap_next_charge_date]"
-                        value=""
+                        value="2025-10-01"
                       >
 
                       <!-- Engraving input field (for handle, max 3 characters) -->
@@ -175,14 +177,9 @@
                       >
                     {% endif %}
 
-                    
-                    
-                    
-                    
                     {{ form | payment_terms }}
                   {%- endform -%}
                 </div>
-              
               {%- when 'inventory' -%}
                 <p
                   class="product__inventory{% if block.settings.text_style == 'uppercase' %} caption-with-letter-spacing{% elsif block.settings.text_style == 'subtitle' %} subtitle{% endif %}{% if product.selected_or_first_available_variant.inventory_management != 'shopify' %} visibility-hidden{% endif %}"
@@ -761,49 +758,24 @@
       {{ product | structured_data }}
     </script>
   </div>
-    <div>(async function() {
-    this.session = await recharge.auth.loginShopifyAppProxy();
+  <script>
+          document.addEventListener('DOMContentLoaded', function() {
+      const chargeDateInput = document.querySelector('input[name="properties[swap_next_charge_date]"]');
 
-    async function addOneTimeButton() {
-        const productFormEl = document.querySelector('.product-form');
-        if (!productFormEl) {
-            return;
-        }
-        const addressObj = await recharge.address.listAddresses(session, {
-            limit: 1,
-        });
-        const firstAddress = addressObj?.addresses?.[0];
-        if (firstAddress) {
-            // this will always send the first address in the array.
-            // could write code that opens a modal for the customer to select an address
-            const nextShipmentEl = document.createElement('div');
-            nextShipmentEl.innerHTML = `<button class="add-otp add-otp__add button button--primary" data-subscription-id="${firstAddress.address_id}">Add OTP Product</button>`;
-            nextShipmentEl.onclick = () => addOneTimeProduct(firstAddress);
-            productFormEl.appendChild(nextShipmentEl);
-        }
-    }
+      // Get today's date
+      const today = new Date();
 
-    async function addOneTimeProduct(address) {
-        const variantId = document.querySelector('.product__info-container').getAttribute('data-product-variant');
-        const today = new Date();
-        await recharge.onetime.createOnetime(session, {
-            address_id: address.id,
-            next_charge_scheduled_at: today.toISOString().split('T')[0],
-            // same thing for quantity - custom code for customer to select the value
-            quantity: 1,
-            external_variant_id: {
-                ecommerce: variantId,
-            },
-        });
+      // Add 17 days to the current date
+      today.setDate(today.getDate() + 17);
 
-        // This is an optional redirect.
-        window.location = '/account';
-    }
+      // Format the date as MM/DD/YYYY
+            const futureDate = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
 
-    // Start everything
-    await addOneTimeButton();
 
-})();</div>
+      // Set the value of swap_next_charge_date to 17 days from today
+      chargeDateInput.value = futureDate;
+    });
+  </script>
 </product-info>
 
 {% schema %}
