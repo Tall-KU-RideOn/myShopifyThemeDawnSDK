@@ -1,9 +1,101 @@
 {% if customer %}
   <section class="recent-orders">
     <h2>Your Recent Orders</h2>
-    <!-- Add Recharge code or any other content here -->
-    <p>Here is where the recent orders will appear.</p>
+    <account-recent-orders>
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <td>Address ID</td>
+            <td>Order ID</td>
+            <td>Total Price</td>
+            <td>Date</td>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="orders-loader">
+        <div class="orders-loader__spinner"><span class="visually-hidden">Loading...</span></div>
+      </div>
+    </account-recent-orders>
   </section>
+
+  <script>
+    class AccountRecentOrders extends HTMLElement {
+      selectors = {
+        loader: '.orders-loader',
+        table: '.orders-table',
+      };
+
+      constructor() {
+        super();
+        this.loadRecentOrders();
+      }
+
+      async login() {
+        try {
+          this.session = await recharge.auth.loginShopifyAppProxy();
+        } catch (error) {
+          console.error('Error during Recharge login:', error);
+        }
+      }
+
+      async loadRecentOrders() {
+        this.setLoading(true);
+        await this.login();
+
+        try {
+          const response = await recharge.charge.listCharges(this.session, {
+            limit: 5, // Fetch the 5 most recent orders
+            status: 'processed', // Status for completed orders
+            include: ["customer", "charge_activities", "metafields", "payment_methods"]
+          });
+
+          const orders = response.charges;
+
+          if (orders && orders.length > 0) {
+            this.populateOrders(orders);
+          } else {
+            console.log('No recent orders found');
+          }
+        } catch (error) {
+          console.error('Error fetching recent orders:', error);
+        }
+
+        this.setLoading(false);
+      }
+
+      populateOrders(orders) {
+        const tableBody = this.querySelector(`${this.selectors.table} tbody`);
+        if (!tableBody) {
+          console.error('Table body not found');
+          return;
+        }
+
+        orders.forEach(order => {
+          tableBody.append(this.createRow(order));
+        });
+      }
+
+      createRow(order) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${order.address_id}</td>
+          <td>${order.id}</td>
+          <td>${order.total_price}</td>
+          <td>${new Date(order.created_at).toLocaleDateString()}</td>
+        `;
+        console.log('Appending row:', tr); // Log the row being appended
+        return tr;
+      }
+
+      setLoading(isLoading) {
+        const loader = this.querySelector(this.selectors.loader);
+        loader.style.display = isLoading ? 'block' : 'none';
+      }
+    }
+
+    customElements.define('account-recent-orders', AccountRecentOrders);
+  </script>
 {% else %}
   <p>You must be logged in to view this page.</p>
   <a href="{{ routes.account_login_url }}">Log in</a>
