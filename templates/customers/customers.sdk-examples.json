@@ -1,10 +1,9 @@
 {
   "sections": {
     "main": {
-      "type": "main-sdk-examples"
+      "type": "main-sdk",
+      "settings": {}
     }
   },
-  "order": [
-    "main"
-  ]
+  "order": ["main"]
 }
