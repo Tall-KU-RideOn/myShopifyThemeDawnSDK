@@ -49,7 +49,7 @@
             status: 'processed', // Status for completed orders
             include: ["customer", "charge_activities", "metafields", "payment_methods"]
           });
-
+          console.log('Recent Orders: ', response.charges)
           const orders = response.charges;
 
           if (orders && orders.length > 0) {
