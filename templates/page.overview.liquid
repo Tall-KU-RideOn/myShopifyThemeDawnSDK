@@ -2,71 +2,101 @@
 
 {% layout 'account' %}
 
-<div class="account-overview">
-  <h1>Your Account Overview</h1>
+{% if customer %}
+  <section class="recent-orders">
+    <h2>Your Recent Orders</h2>
+    <account-recent-orders>
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <td>Address ID</td>
+            <td>Order ID</td>
+            <td>Total Price</td>
+            <td>Date</td>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="orders-loader">
+        <div class="orders-loader__spinner"><span class="visually-hidden">Loading...</span></div>
+      </div>
+    </account-recent-orders>
+  </section>
 
-  <!-- Section: Recent Orders -->
-  {% section 'next-orders' %}
+  <script>
+    class AccountNewOrders extends HTMLElement {
+    selectors = {
+      loader: '.orders-loader',
+      table: '.orders-table',
+    };
 
-  <!-- Section: Next Order -->
-  <div class="account-section">
-    <h2>Your next order</h2>
-    <p>Thu, July 18, 2024</p>
-    <button>Send now</button>
-    <button>Reschedule</button>
-    <button>Skip</button>
-  </div>
+    constructor() {
+      super();
+      this.loadNextOrders();
+    }
 
-  <!-- Section: Delivery Details -->
-  <div class="account-section">
-    <h2>Deliver to</h2>
-    <p>8961 NUEVA ST</p>
-    <div>
-      <p>Short Sleeve T-Shirt</p>
-      <p>Small</p>
-      <p>1 x $9.00 Every month</p>
-      <a href="#">Manage this subscription</a>
-    </div>
-    <button>Edit address</button>
-  </div>
+    async login() {
+      this.session = await recharge.auth.loginShopifyAppProxy();
+    }
 
-  <!-- Section: Payment and Order Total -->
-  <div class="account-section">
-    <h2>Order total</h2>
-    <p>Shipping: Pending estimation</p>
-    <p>Estimated taxes: $0.84</p>
-    <p>Order total: $9.84</p>
-    <p>Charge to card ending in 4242</p>
-    <button>Edit payment method</button>
-  </div>
+    async loadNextOrders() {
+      this.setLoading(true);
+      await this.login();
 
-  <!-- Section: Credits -->
-  <div class="account-section">
-    <h2>Credits</h2>
-    <p>$0.00</p>
-    <p>Auto-apply to the next order</p>
-  </div>
-</div>
+      try {
+        const response = await recharge.charge.listCharges(this.session, {
+          limit: 1,
+          status: 'queued',
+          include: ["customer", "charge_activities", "metafields", "payment_methods"]
+        });
+          console.log('Recent Orders: ', response.charges)
+          const orders = response.charges;
 
-<style>
-.account-overview {
-  padding: 20px;
-}
+          if (orders && orders.length > 0) {
+            this.populateOrders(orders);
+          } else {
+            console.log('No recent orders found');
+          }
+        } catch (error) {
+          console.error('Error fetching recent orders:', error);
+        }
 
-.account-section {
-  margin-bottom: 20px;
-}
+        this.setLoading(false);
+      }
 
-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  margin: 5px;
-  cursor: pointer;
-}
+      populateOrders(orders) {
+        const tableBody = this.querySelector(`${this.selectors.table} tbody`);
+        if (!tableBody) {
+          console.error('Table body not found');
+          return;
+        }
 
-button:hover {
-  background-color: #0056b3;
-}
-</style>
+        orders.forEach(order => {
+          tableBody.append(this.createRow(order));
+        });
+      }
+
+      createRow(order) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${order.address_id}</td>
+          <td>${order.id}</td>
+          <td>${order.total_price}</td>
+          <td>${new Date(order.created_at).toLocaleDateString()}</td>
+        `;
+        console.log('Appending row:', tr); // Log the row being appended
+        return tr;
+      }
+
+      setLoading(isLoading) {
+        const loader = this.querySelector(this.selectors.loader);
+        loader.style.display = isLoading ? 'block' : 'none';
+      }
+    }
+
+    customElements.define('account-recent-orders', AccountRecentOrders);
+  </script>
+{% else %}
+  <p>You must be logged in to view this page.</p>
+  <a href="{{ routes.account_login_url }}">Log in</a>
+{% endif %}
