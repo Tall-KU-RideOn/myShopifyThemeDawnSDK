@@ -540,6 +540,10 @@
       "order_summary": {
         "recurring_subtotal_label": "Subscription Notice:  This order contains a subscription item, recurring charges apply",
         "recurring_total_label": "Subscription Notice:  This order contains a subscription item, recurring charges apply"
+      },
+      "subscriptions": {
+        "recurring_totals": " ",
+        "recurring_totals_with_initial_order_shipping_discount": " "
       }
     }
   }
