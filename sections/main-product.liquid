@@ -138,31 +138,37 @@
                   {%- form 'product', product, id: product_form_installment_id, class: 'installment caption-large' -%}
                     <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
 
-                    {% if product.id == 9563778056471 %}
+                    {% if product.id == 9865415524631 %}
                       <!-- Hidden properties -->
                       <input
                         type="hidden"
                         form="{{ product_form_id }}"
-                        name="properties[trial_kit_swap_flow]"
+                        name="properties[_trial_kit_swap_flow]"
                         value="TRUE"
                       >
                       <input
                         type="hidden"
                         form="{{ product_form_id }}"
                         id="swap_variant_id"
-                        name="properties[swap_variant_id]"
-                        value="49352615231767"
+                        name="properties[_swap_variant_id]"
+                        value="50186419339543"
                       >
                       <input
                         type="hidden"
                         form="{{ product_form_id }}"
-                        name="properties[swap_plan_id]"
+                        name="properties[_swap_plan_id]"
                         value="16266788"
                       >
                       <input
                         type="hidden"
                         form="{{ product_form_id }}"
-                        name="properties[swap_next_charge_date]"
+                        name="properties[_swap_next_charge_date]"
+                        value="2025-10-01"
+                      >
+                      <input
+                        type="hidden"
+                        form="{{ product_form_id }}"
+                        name="properties[You Won't Be Charged Today: ]"
                         value="2025-10-01"
                       >
 
