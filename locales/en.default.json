@@ -542,8 +542,8 @@
         "recurring_total_label": "Subscription Notice:  This order contains a subscription item, recurring charges apply"
       },
       "subscriptions": {
-        "recurring_totals_with_initial_order_shipping_discount": "First payment {{ total_price_with_discount }}, then {{ recurring_total }}",
-        "recurring_totals": " "
+        "recurring_totals_with_initial_order_shipping_discount": "Test dynamic pricing - First payment {{ total_price_with_discount }}, then {{ recurring_total }}",
+        "recurring_totals": "Test regular subscription plan pricing - {{ total_price }} every {{ interval }}"
       }
     }
   }
