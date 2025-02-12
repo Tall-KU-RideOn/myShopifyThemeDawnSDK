@@ -543,7 +543,7 @@
       },
       "subscriptions": {
         "recurring_totals": " ",
-        "recurring_totals_with_initial_order_shipping_discount": " First payment {{ total_price_with_discount }}, then {{ recurring_total }}"
+        "recurring_totals_with_initial_order_shipping_discount": "First payment {{ total_price_with_discount }}, then {{ recurring_total }}"
       }
     }
   }
