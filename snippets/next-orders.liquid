@@ -40,12 +40,13 @@
       await this.login();
 
       try {
-        const response = await recharge.charge.listCharges(this.session, {
-          limit: 1,
-          status: 'queued',
-          include: ["customer", "charge_activities", "metafields", "payment_methods"]
-        });
-        // console.log('Full Response:', response); // Log the full response
+        // const response = await recharge.charge.listCharges(this.session, {
+        //   limit: 1,
+        //   status: 'queued',
+        //   include: ["customer", "charge_activities", "metafields", "payment_methods"]
+        // });
+        const response = await recharge.customer.getCustomer(session, { include: ['subscriptions'] });
+        console.log('Full Response:', response); // Log the full response
 
         const orders = response.charges;
         // console.log('Next Orders Data:', orders); // Print response to the console
