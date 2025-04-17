@@ -46,7 +46,7 @@
         //   include: ["customer", "charge_activities", "metafields", "payment_methods"]
         // });
         const response = await recharge.customer.getCustomer(this.session, { include: ['subscriptions'] });
-        console.log('Full Response:', response); // Log the full response
+        console.log('Full Response: HHAHAHA', response); // Log the full response
 
         const orders = response.charges;
         // console.log('Next Orders Data:', orders); // Print response to the console
