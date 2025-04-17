@@ -1,6 +1,6 @@
 <section class="next-orders">
   <div>
-    <h2>Your Next Orders Let's Go!</h2>
+    <h2>Your Next Orders Let's Go</h2>
     <account-next-orders>
       <table class="orders-table">
         <thead>
@@ -45,7 +45,7 @@
         //   status: 'queued',
         //   include: ["customer", "charge_activities", "metafields", "payment_methods"]
         // });
-        const response = await recharge.customer.getCustomer(session, { include: ['subscriptions'] });
+        const response = await recharge.customer.getCustomer(this.session, { include: ['subscriptions'] });
         console.log('Full Response:', response); // Log the full response
 
         const orders = response.charges;
