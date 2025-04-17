@@ -1,6 +1,6 @@
 <section class="next-orders">
   <div>
-    <h2>Your Next Orders</h2>
+    <h2>Your Next Orders haha</h2>
     <account-next-orders>
       <table class="orders-table">
         <thead>
@@ -40,10 +40,12 @@
     async loadNextOrders() {
       this.setLoading(true);
       await this.login();
-      const { orders } = await recharge.charge.listCharges(this.session, {
-        limit: 2,
-        include: ["metafields", "payment_methods"]
-      });
+      // const { orders } = await recharge.charge.listCharges(this.session, {
+      //   limit: 2,
+      //   include: ["metafields", "payment_methods"]
+      // });
+      const response = await recharge.customer.getCustomer(session, { include: ['subscriptions'] });
+      console.log('Full Response:', response); // Log the full response
 
       console.log('Next Orders Data lol why:', orders); 
       console.log('Next Orders Data lol why:', orders);
