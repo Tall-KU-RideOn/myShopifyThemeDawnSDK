@@ -39,30 +39,41 @@
       this.setLoading(true);
       await this.login();
 
-      try {
-        const response = await recharge.charge.listCharges(this.session, {
-          limit: 1,
-          status: 'queued',
-          include: ["customer", "charge_activities", "metafields", "payment_methods"]
-        });
-        console.log('Full Response: charge', response); // Log the full response
-        const response1 = await recharge.customer.getCustomer(this.session, { include: ['subscriptions'] });
-        console.log('Full Response: customer', response1); // Log the full response
+try {
+  const response = await recharge.charge.listCharges(this.session, {
+    limit: 1,
+    status: 'queued',
+    include: ["customer", "charge_activities", "metafields", "payment_methods"]
+  });
+  console.log('Full Response: charge', response);
 
-        const orders = response.charges;
-        // console.log('Next Orders Data:', orders); // Print response to the console
+  const response1 = await recharge.customer.getCustomer(this.session, {
+    include: ['subscriptions']
+  });
+  console.log('Full Response: customer', response1);
 
-        if (orders && orders.length > 0) {
-          this.populateOrders(orders);
-        } else {
-          console.log('No orders found');
-        }
-      } catch (error) {
-        console.error('Error fetching next orders:', error);
-      }
+  const orders = response.charges;
 
-      this.setLoading(false);
-    }
+  if (orders && orders.length > 0) {
+    this.populateOrders(orders);
+  } else {
+    console.log('No orders found');
+    this.errorMessage = "You don't have any upcoming orders.";
+  }
+} catch (error) {
+  console.error('Error fetching next orders:', error);
+
+  if (error.name === 'RechargeRequestError' && error.status === 403) {
+    // Specific handling for a customer not existing in Recharge
+    this.errorMessage = "You don't have any subscriptions with us yet.";
+  } else {
+    // Generic fallback
+    this.errorMessage = "Something went wrong while fetching your subscriptions.";
+  }
+} finally {
+  this.setLoading(false);
+}
+
 
     populateOrders(orders) {
       const tableBody = this.querySelector(`${this.selectors.table} tbody`);
