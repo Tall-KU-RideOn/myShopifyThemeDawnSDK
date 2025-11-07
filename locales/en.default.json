@@ -543,7 +543,8 @@
         "recurring_total_tooltip": "This order contains a subscription item, recurring charges apply"
       },
       "subscriptions": {
-        "recurring_totals_with_initial_order_shipping_discount": "First payment {{ total_price_with_discount }}, then {{ recurring_total }}"
+        "recurring_totals_with_initial_order_shipping_discount": "First payment {{ total_price_with_discount }}, then {{ recurring_total }}",
+        "recurring_totals": "{{ total_price_with_discount }} or {{ recurring_total }} every {{ interval }}"
       }
     }
   }
