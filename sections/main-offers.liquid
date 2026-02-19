@@ -1,0 +1,249 @@
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .offers-hero {
+    background: linear-gradient(180deg, #2c2419 0%, #3d3428 100%);
+    color: rgb(var(--color-foreground, 255, 255, 255));
+    padding: 3rem 0;
+    text-align: center;
+  }
+  .offers-hero .offers-hero__title { margin: 0 0 0.5rem; color: inherit; font-size: 2.8rem; }
+  .offers-hero .offers-hero__subtitle { margin: 0; opacity: 0.9; font-size: 1.2rem; letter-spacing: 0.15em; text-transform: uppercase; }
+  .section-{{ section.id }}-padding { padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px; padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px; }
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding { padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px; }
+  }
+  .offers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; list-style: none; margin: 0; padding: 0; }
+  @media screen and (min-width: 750px) { .offers-grid { grid-template-columns: repeat(3, 1fr); } }
+  .offers-card { background: rgb(var(--color-background)); border-radius: var(--border-radius, 0); box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow: hidden; display: flex; flex-direction: column; }
+  .offers-card__media { aspect-ratio: 1; background: rgb(var(--color-foreground), 0.05); }
+  .offers-card__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .offers-card__body { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
+  .offers-card__tag { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.05em; color: rgba(var(--color-foreground), 0.7); margin-bottom: 0.5rem; }
+  .offers-card__title { font-size: 1.6rem; font-weight: 700; margin: 0 0 0.25rem; line-height: 1.2; }
+  .offers-card__title a { color: inherit; text-decoration: none; }
+  .offers-card__title a:hover { text-decoration: underline; }
+  .offers-card__quantity { font-size: 1.3rem; color: rgba(var(--color-foreground), 0.8); margin-bottom: 0.75rem; }
+  .offers-card__price { margin-bottom: 1rem; }
+  .offers-card__price .price--sale { font-weight: 700; color: rgb(var(--color-button)); }
+  .offers-card__price .price-item--regular.strike { text-decoration: line-through; color: rgba(var(--color-foreground), 0.6); margin-left: 0.5rem; }
+  .offers-card__footer { margin-top: auto; }
+  .offers-card__view-details { font-size: 1.2rem; text-decoration: underline; color: inherit; }
+  .offers-card__limit { font-size: 1.1rem; color: rgba(var(--color-foreground), 0.6); margin: 0.5rem 0; }
+  .offers-card__add-btn { width: 100%; padding: 1.2rem 1.5rem; border: 1px solid rgb(var(--color-foreground)); background: rgb(var(--color-background)); color: rgb(var(--color-foreground)); font-size: 1.4rem; cursor: pointer; border-radius: var(--buttons-radius, 0); margin-top: 0.5rem; }
+  .offers-card__add-btn:hover { opacity: 0.9; }
+  .offers-card__add-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .offers-loader { display: flex; justify-content: center; padding: 3rem; }
+  .offers-loader[hidden] { display: none; }
+  .offers-empty { text-align: center; padding: 3rem; font-size: 1.6rem; }
+{%- endstyle -%}
+
+<div class="offers-hero page-width">
+  <h1 class="offers-hero__title">{{ section.settings.heading | escape }}</h1>
+  <p class="offers-hero__subtitle">{{ section.settings.subheading | escape }}</p>
+</div>
+
+<div class="section-{{ section.id }}-padding page-width gradient">
+  <div class="offers-loader" id="offers-loader-{{ section.id }}" aria-hidden="false">
+    {% render 'loading-spinner', class: 'loading__spinner' %}
+    <span class="visually-hidden">Loading offers…</span>
+  </div>
+  <ul class="offers-grid" id="offers-grid-{{ section.id }}" data-section-id="{{ section.id }}" hidden aria-live="polite">
+  </ul>
+  <p class="offers-empty" id="offers-empty-{{ section.id }}" hidden>No offers available right now.</p>
+</div>
+
+<script>
+(function() {
+  const sectionId = '{{ section.id }}';
+  const grid = document.getElementById('offers-grid-' + sectionId);
+  const loader = document.getElementById('offers-loader-' + sectionId);
+  const emptyEl = document.getElementById('offers-empty-' + sectionId);
+
+  function formatMoney(price, currency) {
+    const num = typeof price === 'string' ? parseFloat(price) : Number(price);
+    if (isNaN(num)) return '';
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'USD', minimumFractionDigits: 2 }).format(num);
+  }
+
+  function getProductImage(product) {
+    const img = product.images && product.images[0];
+    if (!img) return '';
+    return img.medium || img.large || img.small || img.original || '';
+  }
+
+  function getVariantPrice(variant) {
+    const prices = variant.prices || [];
+    const p = prices[0] || {};
+    return { price: p.unit_price, compareAt: p.compare_at_price, currency: p.currency || 'USD' };
+  }
+
+  function renderCard(product, session) {
+    const variant = (product.variants && product.variants[0]) || {};
+    const priceInfo = getVariantPrice(variant);
+    const imgUrl = getProductImage(product) || (variant.image && (variant.image.medium || variant.image.original)) || '';
+    const tag = (product.tags && product.tags[0]) ? product.tags[0] : '';
+    const productUrl = '/products/' + (product.handle || '');
+    const externalProductId = product.external_product_id || '';
+    const externalVariantId = variant.external_variant_id || '';
+
+    const li = document.createElement('li');
+    li.className = 'offers-card-wrapper';
+    li.innerHTML =
+      '<article class="offers-card">' +
+        '<div class="offers-card__media">' +
+          (imgUrl ? '<img src="' + imgUrl.replace(/"/g, '&quot;') + '" alt="" loading="lazy" width="400" height="400">' : '') +
+        '</div>' +
+        '<div class="offers-card__body">' +
+          (tag ? '<p class="offers-card__tag">' + tag.replace(/</g, '&lt;') + '</p>' : '') +
+          '<h3 class="offers-card__title"><a href="' + productUrl + '">' + (product.title || '').replace(/</g, '&lt;') + '</a></h3>' +
+          (variant.title ? '<p class="offers-card__quantity">' + variant.title.replace(/</g, '&lt;') + '</p>' : '') +
+          '<div class="offers-card__price">' +
+            '<span class="price price--sale">' + formatMoney(priceInfo.price, priceInfo.currency) + '</span>' +
+            (priceInfo.compareAt ? ' <span class="price-item--regular strike">' + formatMoney(priceInfo.compareAt, priceInfo.currency) + '</span>' : '') +
+          '</div>' +
+          '<div class="offers-card__footer">' +
+            '<a class="offers-card__view-details" href="' + productUrl + '">VIEW DETAILS</a>' +
+            '<p class="offers-card__limit">Limit 1 per person</p>' +
+            '<button type="button" class="offers-card__add-btn" data-external-product-id="' + externalProductId.replace(/"/g, '&quot;') + '" data-external-variant-id="' + externalVariantId.replace(/"/g, '&quot;') + '" data-product-title="' + (product.title || '').replace(/"/g, '&quot;') + '">ADD TO NEXT BOX</button>' +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    const btn = li.querySelector('.offers-card__add-btn');
+    if (btn && session) {
+      btn.addEventListener('click', function() {
+        addToNextBox(session, {
+          external_product_id: btn.getAttribute('data-external-product-id'),
+          external_variant_id: btn.getAttribute('data-external-variant-id'),
+          product_title: btn.getAttribute('data-product-title')
+        }, btn);
+      });
+    } else if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Sign in to add';
+    }
+    return li;
+  }
+
+  function addToNextBox(session, payload, buttonEl) {
+    if (!payload.external_variant_id || !payload.external_product_id) return;
+    buttonEl.disabled = true;
+    buttonEl.textContent = 'Adding…';
+    recharge.address.listAddresses(session, { limit: 1 })
+      .then(function(res) {
+        const addrs = res.addresses || res;
+        const addressId = Array.isArray(addrs) && addrs[0] ? addrs[0].id : null;
+        if (!addressId) {
+          buttonEl.disabled = false;
+          buttonEl.textContent = 'ADD TO NEXT BOX';
+          return;
+        }
+        return recharge.onetime.createOnetime(session, {
+          address_id: addressId,
+          add_to_next_charge: true,
+          quantity: 1,
+          external_variant_id: { ecommerce: String(payload.external_variant_id) },
+          external_product_id: { ecommerce: String(payload.external_product_id) },
+          product_title: payload.product_title || ''
+        });
+      })
+      .then(function() {
+        buttonEl.textContent = 'Added to next box';
+      })
+      .catch(function(err) {
+        console.error('Add to next box failed', err);
+        buttonEl.disabled = false;
+        buttonEl.textContent = 'ADD TO NEXT BOX';
+      });
+  }
+
+  function run() {
+    if (typeof recharge === 'undefined') {
+      loader.setAttribute('hidden', '');
+      emptyEl.removeAttribute('hidden');
+      return;
+    }
+    recharge.auth.loginShopifyAppProxy()
+      .then(function(session) {
+        var searchPromise = (recharge.product && recharge.product.productSearch)
+          ? recharge.product.productSearch(session, { format_version: '2022-06', limit: 50 })
+          : (recharge.productSearch)
+            ? recharge.productSearch(session, { format_version: '2022-06', limit: 50 })
+            : (recharge.product && recharge.product.getCDNProducts)
+              ? recharge.product.getCDNProducts()
+              : Promise.reject(new Error('Recharge product API not found'));
+        return searchPromise.then(function(result) {
+          var products = (result && result.products) ? result.products : (Array.isArray(result) ? result : []);
+          return { session: session, products: products };
+        });
+      })
+      .then(function(_ref) {
+        var session = _ref.session;
+        var products = _ref.products;
+        loader.setAttribute('hidden', '');
+        if (!products || products.length === 0) {
+          emptyEl.removeAttribute('hidden');
+          return;
+        }
+        grid.removeAttribute('hidden');
+        products.forEach(function(p) {
+          grid.appendChild(renderCard(p, session));
+        });
+      })
+      .catch(function(err) {
+        console.error('Offers load failed', err);
+        loader.setAttribute('hidden', '');
+        emptyEl.removeAttribute('hidden');
+      });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Offers",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Member Deals"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "CHOOSE YOUR OFFER"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 36
+    }
+  ]
+}
+{% endschema %}

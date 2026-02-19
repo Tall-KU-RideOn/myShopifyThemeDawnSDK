@@ -1,0 +1,14 @@
+{
+  "sections": {
+    "offers-hero": {
+      "type": "main-offers",
+      "settings": {
+        "heading": "Member Deals",
+        "subheading": "CHOOSE YOUR OFFER",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    }
+  },
+  "order": ["offers-hero"]
+}
