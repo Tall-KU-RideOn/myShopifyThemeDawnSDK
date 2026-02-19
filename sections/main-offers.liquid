@@ -131,28 +131,39 @@
     buttonEl.disabled = true;
     buttonEl.textContent = 'Adding…';
     recharge.address.listAddresses(session, { limit: 1 })
-      .then(function(res) {
-        const addrs = res.addresses || res;
+      .then(function(addressRes) {
+        console.log('[Recharge] listAddresses response:', addressRes);
+        const addrs = addressRes.addresses || addressRes;
         const addressId = Array.isArray(addrs) && addrs[0] ? addrs[0].id : null;
         if (!addressId) {
           buttonEl.disabled = false;
           buttonEl.textContent = 'ADD TO NEXT BOX';
-          return;
+          return Promise.reject(new Error('No address'));
         }
-        return recharge.onetime.createOnetime(session, {
-          address_id: addressId,
-          add_to_next_charge: true,
-          quantity: 1,
-          external_variant_id: { ecommerce: String(payload.external_variant_id) },
-          external_product_id: { ecommerce: String(payload.external_product_id) },
-          product_title: payload.product_title || ''
-        });
+        return recharge.subscription.listSubscriptions(session, { limit: 250 })
+          .then(function(subRes) {
+            console.log('[Recharge] listSubscriptions response (all):', subRes);
+            var subscriptions = (subRes && subRes.subscriptions) ? subRes.subscriptions : (Array.isArray(subRes) ? subRes : []);
+            var forAddress = subscriptions.filter(function(s) { return s.address_id === addressId; });
+            console.log('[Recharge] subscriptions for this address (id=' + addressId + '):', forAddress);
+            return recharge.onetime.createOnetime(session, {
+              address_id: addressId,
+              add_to_next_charge: true,
+              quantity: 1,
+              external_variant_id: { ecommerce: String(payload.external_variant_id) },
+              external_product_id: { ecommerce: String(payload.external_product_id) },
+              product_title: payload.product_title || ''
+            });
+          });
       })
-      .then(function() {
+      .then(function(onetimeRes) {
+        console.log('[Recharge] createOnetime response:', onetimeRes);
         buttonEl.textContent = 'Added to next box';
       })
       .catch(function(err) {
-        console.error('Add to next box failed', err);
+        if (err && err.message !== 'No address') {
+          console.error('Add to next box failed', err);
+        }
         buttonEl.disabled = false;
         buttonEl.textContent = 'ADD TO NEXT BOX';
       });
@@ -174,6 +185,7 @@
               ? recharge.product.getCDNProducts()
               : Promise.reject(new Error('Recharge product API not found'));
         return searchPromise.then(function(result) {
+          console.log('[Recharge] product search response (full payload):', result);
           var products = (result && result.products) ? result.products : (Array.isArray(result) ? result : []);
           return { session: session, products: products };
         });
