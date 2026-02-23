@@ -307,26 +307,51 @@
 
 
 
-<script>
-  document.addEventListener('DOMContentLoaded', async () => {
-    const div = document.getElementById('right-column-custom-html');
-    if (!div) return;
+    <script>
+  (function () {
+    const TARGET_ID = "right-column-custom-html";
+    const INJECTED_ID = "rc-custom-html-injected";
 
-    try {
+    async function inject() {
+      const host = document.getElementById(TARGET_ID);
+      if (!host) return;
+
+      // Prevent duplicates
+      if (host.querySelector(`#${INJECTED_ID}`)) return;
+
       await recharge.auth.loginCustomerPortal();
 
-      div.innerHTML = `
-        <div class="right-column-custom-html-container">
-          <h2 style="font-size: 18px; margin-bottom: 20px;">
-            Shopify Theme - right column custom html - hello world
-          </h2>
-        </div>
-      `;
-    } catch (error) {
-      console.error('Customer portal authentication failed:', error);
+      host.insertAdjacentHTML(
+        "afterbegin",
+        `
+          <div id="${INJECTED_ID}" class="right-column-custom-html-container">
+            <h2 style="font-size: 18px; margin-bottom: 20px;">
+              Shopify Theme - right column custom html - hello world
+            </h2>
+          </div>
+        `
+      );
     }
-  });
+
+    // Try once immediately
+    inject().catch(console.error);
+
+    // Affinity 2.0 can re-render content; observe and re-inject if needed
+    const observer = new MutationObserver(() => {
+      inject().catch(console.error);
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+  })();
 </script>
+
+
+
+
+
+
+
+
 
 
 
