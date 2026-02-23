@@ -306,6 +306,183 @@
 
 
 
+<script>
+recharge.init({
+  storeIdentifier: 'kurt-recharge.myshopify.com',
+  storefrontAccessToken: 'strfnt_5f6626b2e772b18c7a774845143b1d6cb27992b9940d1437ad4ccdc51c7fe7c7',
+  appName: 'affinityTest',
+  appVersion: '1.0.0',
+  loginRetryFn: () => {
+    return recharge.auth.loginCustomerPortal().then(session => {
+      window.sdkSession = session;
+      return session;
+    });
+  },
+});
+recharge.auth.loginCustomerPortal().then(session => {
+      window.sdkSession = session;
+});
+</script>
+<script src="https://storage.googleapis.com/custom-snippets/sdkExplorer/index.js" 
+        data-store-identifier="kurt-recharge.myshopify.com" 
+        data-access-token="strfnt_5f6626b2e772b18c7a774845143b1d6cb27992b9940d1437ad4ccdc51c7fe7c7">
+</script>
+
+
+<script>
+  const observer = new MutationObserver(async () => {
+    const div = document.getElementById('sdk-example');
+    if (!div) return;
+    observer.disconnect();
+
+    const session = await recharge.auth.loginCustomerPortal();
+
+    try {
+      const chargesResponse = await recharge.charge.listCharges(session, {
+        limit: 1,
+        sort_by: 'scheduled_at-asc',
+        status: 'queued'
+      });
+
+      if (chargesResponse.charges.length === 0) {
+        div.innerHTML = '<p>No upcoming orders found.</p>';
+        return;
+      }
+
+      const nextCharge = chargesResponse.charges[0];
+      const chargeDate = new Date(nextCharge.scheduled_at);
+      const formattedDate = chargeDate.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric' 
+      });
+
+      const bundleSelectionsResponse = await recharge.bundle.listBundleSelections(session);
+
+      let bundleHtml = '';
+      if (bundleSelectionsResponse.bundle_selections?.length > 0) {
+        const bundleSelection = bundleSelectionsResponse.bundle_selections[0];
+        
+        const bundleItemsHtml = await Promise.all(
+          bundleSelection.items.map(async (item) => {
+            let productTitle = item.product_title || `Bundle Item (ID: ${item.external_product_id})`;
+            let imageUrl = '';
+
+            try {
+              // Fix: Added format_version and updated to external_product_ids for the 2022-06 API spec
+              const searchResponse = await recharge.product.productSearch(session, {
+                format_version: '2022-06',
+                external_product_ids: String(item.external_product_id),
+                shopify_product_ids: String(item.external_product_id) // Fallback just in case
+              });
+
+              if (searchResponse?.products?.length > 0) {
+                const rechargeProduct = searchResponse.products.find(p => String(p.external_product_id) === String(item.external_product_id)) || searchResponse.products[0];
+                
+                productTitle = rechargeProduct.title || productTitle;
+                
+                if (rechargeProduct.images?.length > 0) {
+                    imageUrl = rechargeProduct.images[0].small || rechargeProduct.images[0].original || rechargeProduct.images[0].large || ''; 
+                }
+              } else {
+                  console.warn(`[PRODUCT_NOT_FOUND] Product ${item.external_product_id} not returned by API.`);
+              }
+            } catch (err) {
+              console.error(`[PRODUCT_FETCH_ERROR] SDK search failed for ID ${item.external_product_id}:`, err);
+            }
+
+            return `
+              <div class="bundle-item">
+                ${imageUrl 
+                    ? `<img src="${imageUrl}" alt="${productTitle.replace(/"/g, '&quot;')}" class="bundle-item-image">` 
+                    : `<div style="width: 60px; height: 60px; background: #eee; margin-right: 15px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #999; text-align: center;">No Image</div>`
+                }
+                <div class="bundle-item-details">
+                  <h4>${productTitle}</h4>
+                  <p style="margin: 0; font-size: 12px; color: #666;">Qty: ${item.quantity}</p>
+                </div>
+              </div>
+            `;
+          })
+        );
+
+        bundleHtml = `
+          <div class="bundle-container">
+            <h3 style="margin-top: 0; margin-bottom: 15px; font-weight: bold; font-size: 16px;">In your order (${bundleSelection.items.length} items):</h3>
+            <div class="bundle-items">
+              ${bundleItemsHtml.join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      div.innerHTML = `
+        <div class="next-order-container">
+          <h2 style="font-size: 18px; margin-bottom: 20px;">Your next order: Processing ${formattedDate}</h2>
+          ${bundleHtml}
+        </div>
+      `;
+
+    } catch (error) {
+      console.error('[CRITICAL_ERROR] Error loading next order:', error);
+      div.innerHTML = '<p>Error loading next order details.</p>';
+    }
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+</script>
+
+<style>
+  .next-order-container {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  .bundle-container {
+    margin-top: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    background: #f9f9f9;
+  }
+  .bundle-items { 
+    margin-top: 10px; 
+  }
+  .bundle-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #eee;
+  }
+  .bundle-item:last-child {
+    margin-bottom: 0;
+  }
+  .bundle-item-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    margin-right: 15px;
+    border-radius: 4px;
+    border: 1px solid #f0f0f0;
+  }
+  .bundle-item-details h4 {
+    margin: 0 0 5px 0;
+    font-size: 14px;
+    font-weight: 500;
+  }
+</style>
+
+
+
+
+
+
+
+
+
 
 
   </head>
