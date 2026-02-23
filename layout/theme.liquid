@@ -307,28 +307,29 @@
 
 
 
-
 <script>
   const observer = new MutationObserver(async () => {
     const div = document.getElementById('right-column-custom-html');
     if (!div) return;
+
     observer.disconnect();
 
     const session = await recharge.auth.loginCustomerPortal();
 
-      div.innerHTML = `
-        <div class="right-column-custom-html-container">
-          <h2 style="font-size: 18px; margin-bottom: 20px;">Shopify Theme - right column custom html - hello world</h2>
-                </div>
-      `;
-
-    } 
+    div.innerHTML = `
+      <div class="right-column-custom-html-container">
+        <h2 style="font-size: 18px; margin-bottom: 20px;">
+          Shopify Theme - right column custom html - hello world
+        </h2>
+      </div>
+    `;
   });
 
-
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
 </script>
-
-
 
 
 
