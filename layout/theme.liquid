@@ -306,41 +306,28 @@
 
 
     
-
-   <script>
-      const observer = new MutationObserver( async () => {
-        const div = document.getElementById('this-is-a-test');
-        if (!div) {
-            return
-        }
-      
-          recharge.init({
-        storeIdentifier: '{{shop.permanent_domain}}',
-        // required for API access
-        storefrontAccessToken: 'strfnt_5f6626b2e772b18c7a774845143b1d6cb27992b9940d1437ad4ccdc51c7fe7c7',
-        appName: 'appName',
-        appVersion: '1.0.0',
-        loginRetryFn: async () => {
-          const session = await loginShopifyAppProxy();
-          // do anything you want with the session here
-          // return session
-          return session;
-        },
-      });
-      
-      const session = await recharge.auth.loginCustomerPortal();
-      const subs = await recharge.subscription.listSubscriptions(session, {
-        limit: 25,
-        sort_by: 'id-asc',
-      });
-      console.log("Subscriptions", subs)
-          observer.disconnect();
-      });
-      observer.observe(document.body, { childList: true, subtree: true });
-        
-   </script>
+<script>
+ document.addEventListener('DOMContentLoaded', async () => {
+   const div = document.getElementById('right-column-custom-html');
+   if (!div) return;
 
 
+   try {
+     await recharge.auth.loginCustomerPortal();
+
+
+     div.innerHTML = `
+       <div class="right-column-custom-html-container">
+         <h2 style="font-size: 18px; margin-bottom: 20px;">
+           Shopify Theme - right column custom html - hello world
+         </h2>
+       </div>
+     `;
+   } catch (error) {
+     console.error('Customer portal authentication failed:', error);
+   }
+ });
+</script>
 
 
 
