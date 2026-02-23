@@ -309,50 +309,6 @@
 
 
 
-    <script>
-  const observer = new MutationObserver(async () => {
-    const div = document.getElementById('right-column-custom-html');
-    if (!div) return;
-
-    observer.disconnect();
-
-    try {
-      const session = await recharge.auth.loginCustomerPortal();
-
-      div.innerHTML = `
-        <div class="right-column-custom-html-container">
-          <h2 style="font-size: 18px; margin-bottom: 20px;">
-            Insert custom code here - Shopify Theme
-          </h2>
-        </div>
-      `;
-    } catch (error) {
-      console.error('Failed to authenticate customer portal:', error);
-    }
-  });
-
-  // Start observing the DOM for changes
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-  });
-</script>
-
-<style>
-  .right-column-custom-html-container {
-    font-family: Arial, sans-serif;
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-</style>
-
-
-
-
-
-
-
 
 
 
